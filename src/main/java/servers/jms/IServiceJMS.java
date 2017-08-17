@@ -19,6 +19,8 @@
  */
 package servers.jms;
 
+import java.util.List;
+
 /**
  * @author Gabriel Dimitriu
  *
@@ -35,14 +37,30 @@ public interface IServiceJMS extends IServiceServer{
 	public void setProtocolType(final String protocolType);
 
 	/**
+	 * @param index the queue name index
 	 * @return the queueName
 	 */
-	public String getQueueName();
+	public String getQueueName(final int index);
 
 	/**
 	 * @param queueName the queueName to set
+	 * @param index of the queue
 	 */
-	public void setQueueName(final String queueName);
+	public void addQueueName(final String queueName, final int index);
+	
+	
+	/**
+	 * set the list of queues
+	 * @param queues list of queues
+	 */
+	public void setQueuesNames(final List<String> queues);
+	
+	
+	/**
+	 * get the list of the queues.
+	 * @return list of queue names
+	 */
+	public List<String> getQueuesNames();
 
 	/**
 	 * @return the connectionFactoryName

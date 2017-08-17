@@ -19,7 +19,9 @@
  */
 package servers.jms;
 
+import java.util.ArrayList;
 import java.util.Arrays;
+import java.util.List;
 
 import org.apache.activemq.artemis.core.config.Configuration;
 import org.apache.activemq.artemis.core.config.impl.ConfigurationImpl;
@@ -52,7 +54,7 @@ public class ServerJMS implements IServiceJMS {
 	private String protocolType = "tcp";
 	
 	/** name of the queue */
-	private String queueName = null;
+	private List<String> queuesNames = null;
 	
 	/** name of the connection factory */
 	private String connectionFactoryName = null;
@@ -74,10 +76,11 @@ public class ServerJMS implements IServiceJMS {
 	
 	public ServerJMS(final int port) {
 		serverPort = port;
+		queuesNames = new ArrayList<String>();
 	}
 	
 	public ServerJMS() {
-		
+		queuesNames = new ArrayList<String>();
 	}
 	
 	/**
@@ -117,10 +120,12 @@ public class ServerJMS implements IServiceJMS {
 	    jmsConfig.getConnectionFactoryConfigurations().add(cfConfig);
 
 	    // Step 4. Configure the JMS Queue
-	    JMSQueueConfiguration queueConfig = new JMSQueueConfigurationImpl()
+	    for (String queueName : queuesNames) {
+	    	JMSQueueConfiguration queueConfig = new JMSQueueConfigurationImpl()
 	    		.setName(queueName).setDurable(queueDurable)
 	    		.setBindings("queue/" + queueName);
-	    jmsConfig.getQueueConfigurations().add(queueConfig);
+	    	jmsConfig.getQueueConfigurations().add(queueConfig);
+	    }
 
 	    // Step 5. Start the JMS Server using the ActiveMQ Artemis core server and the JMS configuration
 	    jmsServer = new EmbeddedJMS().setConfiguration(configuration).setJmsConfiguration(jmsConfig).start();
@@ -149,132 +154,94 @@ public class ServerJMS implements IServiceJMS {
 		return serverName;
 	}
 
-	/**
-	 * @return the protocolType
-	 */
 	public String getProtocolType() {
 		return protocolType;
 	}
 
-	/**
-	 * @param protocolType the protocolType to set
-	 */
 	@Override
 	public void setProtocolType(final String protocolType) {
 		this.protocolType = protocolType;
 	}
 
-	/**
-	 * @return the queueName
-	 */
 	@Override
-	public String getQueueName() {
-		return queueName;
+	public String getQueueName(final int index) {
+		return queuesNames.get(index);
 	}
 
-	/**
-	 * @param queueName the queueName to set
-	 */
 	@Override
-	public void setQueueName(final String queueName) {
-		this.queueName = queueName;
+	public void addQueueName(final String queueName, final int index) {
+		this.queuesNames.add(index, queueName);
 	}
 
-	/**
-	 * @return the connectionFactoryName
-	 */
 	@Override
 	public String getConnectionFactoryName() {
 		return connectionFactoryName;
 	}
 
-	/**
-	 * @param connectionFactoryName the connectionFactoryName to set
-	 */
 	@Override
 	public void setConnectionFactoryName(final String connectionFactoryName) {
 		this.connectionFactoryName = connectionFactoryName;
 	}
 
-	/**
-	 * @return the journalDirectory
-	 */
 	@Override
 	public String getJournalDirectory() {
 		return journalDirectory;
 	}
 
-	/**
-	 * @param journalDirectory the journalDirectory to set
-	 */
 	@Override
 	public void setJournalDirectory(final String journalDirectory) {
 		this.journalDirectory = journalDirectory;
 	}
 
-	/**
-	 * @return the queueDurable
-	 */
 	@Override
 	public boolean isQueueDurable() {
 		return queueDurable;
 	}
 
-	/**
-	 * @param quueDurable the quueDurable to set
-	 */
 	@Override
 	public void setQueueDurable(final boolean queueDurable) {
 		this.queueDurable = queueDurable;
 	}
 
-	/**
-	 * @return the serverSecurityEnabled
-	 */
 	@Override
 	public boolean isServerSecurityEnabled() {
 		return serverSecurityEnabled;
 	}
 
-	/**
-	 * @param serverSecurityEnabled the serverSecurityEnabled to set
-	 */
 	@Override
 	public void setServerSecurityEnabled(final boolean serverSecurityEnabled) {
 		this.serverSecurityEnabled = serverSecurityEnabled;
 	}
 
-	/**
-	 * @return the serverPersistenceEnabled
-	 */
 	@Override
 	public boolean isServerPersistenceEnabled() {
 		return serverPersistenceEnabled;
 	}
 
-	/**
-	 * @param serverPersistenceEnabled the serverPersistenceEnabled to set
-	 */
 	@Override
 	public void setServerPersistenceEnabled(final boolean serverPersistenceEnabled) {
 		this.serverPersistenceEnabled = serverPersistenceEnabled;
 	}
 
-	/**
-	 * @return the serverHost
-	 */
 	@Override
 	public String getServerHost() {
 		return serverHost;
 	}
 
-	/**
-	 * @param serverHost the serverHost to set
-	 */
 	@Override
 	public void setServerHost(final String serverHost) {
 		this.serverHost = serverHost;
 		connectionFactoryName = serverName +"_" + serverHost + "_factory";
+	}
+
+	@Override
+	public void setQueuesNames(final List<String> queues) {
+		this.queuesNames.addAll(queues);
+	}
+
+	@Override
+	public List<String> getQueuesNames() {
+		return queuesNames;
 	}
 
 }
