@@ -20,6 +20,7 @@
 package embedded;
 
 import java.util.Arrays;
+import java.util.Formatter;
 
 import javax.jms.Connection;
 import javax.jms.ConnectionFactory;

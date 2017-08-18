@@ -21,7 +21,12 @@ package servers.jms;
 
 import java.util.ArrayList;
 import java.util.Arrays;
+import java.util.HashMap;
+import java.util.HashSet;
 import java.util.List;
+import java.util.Map;
+import java.util.Map.Entry;
+import java.util.Set;
 
 import org.apache.activemq.artemis.core.config.Configuration;
 import org.apache.activemq.artemis.core.config.impl.ConfigurationImpl;
@@ -42,6 +47,9 @@ public class ServerJMS implements IServiceJMS {
 	/** JMS embedded server */
 	private EmbeddedJMS jmsServer = null;
 	
+	/** configuration for jms */
+	private JMSConfiguration jmsConfig = null;
+	
 	/** JMS communication port */
 	private int serverPort = 61616;
 	
@@ -54,10 +62,10 @@ public class ServerJMS implements IServiceJMS {
 	private String protocolType = "tcp";
 	
 	/** name of the queue */
-	private List<String> queuesNames = null;
+	private Set<String> queuesNames = null;
 	
-	/** name of the connection factory */
-	private String connectionFactoryName = null;
+	/** name of the default connection factory */
+	private String connectionDefaultFactoryName = null;
 	
 	/** name of the journal directory */
 	private String journalDirectory = "target/data/journal";
@@ -74,13 +82,23 @@ public class ServerJMS implements IServiceJMS {
 	/** server persistence is enabled */
 	private boolean serverPersistenceEnabled = false;
 	
+	/** map of consumers and queues */
+	private Map<String, IResourceProducerConsumer> registeredConsumers = null;
+	
+	/** map of runtime consumers */
+	private Map<String, ConsumerHolder> runtimeConsumers = null;
+	
 	public ServerJMS(final int port) {
 		serverPort = port;
-		queuesNames = new ArrayList<String>();
+		queuesNames = new HashSet<String>();
+		registeredConsumers = new HashMap<String, IResourceProducerConsumer>();
+		runtimeConsumers = new HashMap<String, ConsumerHolder>();
 	}
 	
 	public ServerJMS() {
-		queuesNames = new ArrayList<String>();
+		queuesNames = new HashSet<String>();
+		registeredConsumers = new HashMap<String, IResourceProducerConsumer>();
+		runtimeConsumers = new HashMap<String, ConsumerHolder>();
 	}
 	
 	/**
@@ -97,12 +115,16 @@ public class ServerJMS implements IServiceJMS {
 
 	@Override
 	public void stopServer() throws Exception {
+		runtimeConsumers.entrySet().stream().forEach(runtimeConsumer -> runtimeConsumer.getValue().stop());
 		jmsServer.stop();
+		runtimeConsumers.clear();
 	}
 
 	@Override
 	public void startServer() throws Exception {
-		connectionFactoryName = serverName +"_" + serverHost + "_factory";
+		if (connectionDefaultFactoryName != null) {
+			connectionDefaultFactoryName = serverName +"_" + serverHost + "_factory";
+		}
 		// Step 1. Create ActiveMQ Artemis core configuration, and set the properties accordingly
 	    Configuration configuration = new ConfigurationImpl().setPersistenceEnabled(serverPersistenceEnabled)
 	    		.setJournalDirectory(journalDirectory)
@@ -111,14 +133,16 @@ public class ServerJMS implements IServiceJMS {
 	    		.addConnectorConfiguration(serverName, protocolType + "://" + serverHost + ":" + serverPort);
 
 	    // Step 2. Create the JMS configuration
-	    JMSConfiguration jmsConfig = new JMSConfigurationImpl();
+	    jmsConfig = new JMSConfigurationImpl();
 
-	    // Step 3. Configure the JMS ConnectionFactory
+	    // Step 3. Configure the JMS default ConnectionFactory
 	    ConnectionFactoryConfiguration cfConfig = new ConnectionFactoryConfigurationImpl()
-	    		.setName(connectionFactoryName).setConnectorNames(Arrays.asList(serverName))
-	    		.setBindings(connectionFactoryName);
+	    		.setName(connectionDefaultFactoryName).setConnectorNames(Arrays.asList(serverName))
+	    		.setBindings(connectionDefaultFactoryName);
 	    jmsConfig.getConnectionFactoryConfigurations().add(cfConfig);
 
+	    registeredConsumers.values().stream().forEach(consumer -> registerSpecificFactory(consumer));
+	    
 	    // Step 4. Configure the JMS Queue
 	    for (String queueName : queuesNames) {
 	    	JMSQueueConfiguration queueConfig = new JMSQueueConfigurationImpl()
@@ -130,6 +154,21 @@ public class ServerJMS implements IServiceJMS {
 	    // Step 5. Start the JMS Server using the ActiveMQ Artemis core server and the JMS configuration
 	    jmsServer = new EmbeddedJMS().setConfiguration(configuration).setJmsConfiguration(jmsConfig).start();
 	    System.out.println("Started Embedded JMS Server");
+	    
+	    registeredConsumers.entrySet().stream().forEach(consumer -> runtimeConsumers.put(consumer.getKey(), 
+	    		new ConsumerHolder(jmsServer, consumer.getValue())));
+	    
+	    runtimeConsumers.entrySet().stream().forEach(runtimeConsumer -> runtimeConsumer.getValue().start());
+	}
+	
+	private void registerSpecificFactory(final IResourceProducerConsumer consumer) {
+		if (consumer.getFactoryName() == null || consumer.getFactoryName().equals(connectionDefaultFactoryName)) {
+			return;
+		}
+		ConnectionFactoryConfiguration cfConfig = new ConnectionFactoryConfigurationImpl()
+	    		.setName(consumer.getFactoryName()).setConnectorNames(Arrays.asList(serverName))
+	    		.setBindings(consumer.getFactoryName());
+	    jmsConfig.getConnectionFactoryConfigurations().add(cfConfig);
 	}
 	
 	@Override
@@ -146,7 +185,6 @@ public class ServerJMS implements IServiceJMS {
 	@Override
 	public void setName(final String key) {
 		serverName = key;
-		connectionFactoryName = serverName +"_" + serverHost + "_factory";
 	}
 
 	@Override
@@ -164,23 +202,23 @@ public class ServerJMS implements IServiceJMS {
 	}
 
 	@Override
-	public String getQueueName(final int index) {
-		return queuesNames.get(index);
+	public String[] getQueueNames() {
+		return queuesNames.toArray(new String[1]);
 	}
 
 	@Override
-	public void addQueueName(final String queueName, final int index) {
-		this.queuesNames.add(index, queueName);
+	public void addQueueName(final String queueName) {
+		this.queuesNames.add(queueName);
 	}
 
 	@Override
-	public String getConnectionFactoryName() {
-		return connectionFactoryName;
+	public String getDefaultConnectionFactoryName() {
+		return connectionDefaultFactoryName;
 	}
 
 	@Override
-	public void setConnectionFactoryName(final String connectionFactoryName) {
-		this.connectionFactoryName = connectionFactoryName;
+	public void setDefaultConnectionFactoryName(final String connectionFactoryName) {
+		this.connectionDefaultFactoryName = connectionFactoryName;
 	}
 
 	@Override
@@ -231,7 +269,6 @@ public class ServerJMS implements IServiceJMS {
 	@Override
 	public void setServerHost(final String serverHost) {
 		this.serverHost = serverHost;
-		connectionFactoryName = serverName +"_" + serverHost + "_factory";
 	}
 
 	@Override
@@ -240,8 +277,31 @@ public class ServerJMS implements IServiceJMS {
 	}
 
 	@Override
-	public List<String> getQueuesNames() {
-		return queuesNames;
+	public String registerResourceConsumer(final IResourceProducerConsumer consumer) {
+		if (!queuesNames.contains(consumer.getQueueName())) {
+			return null;
+		}
+		String registeredkey = consumer.getQueueName() + ":" + consumer.getFactoryName();
+		registeredConsumers.put(registeredkey, consumer);
+		return registeredkey;
+	}
+
+	@Override
+	public IResourceProducerConsumer getRegisterResourceConsumer(final String registeredkey) {
+		if (registeredConsumers.containsKey(registeredkey)) {
+			registeredConsumers.get(registeredkey);
+		}
+		return null;
+	}
+
+	@Override
+	public void unregisterResourceConsumer(final String registeredkey) {
+		if (runtimeConsumers.containsKey(registeredkey)) {
+			runtimeConsumers.remove(registeredkey).stop();
+		}
+		if (registeredConsumers.containsKey(registeredkey)) {
+			registeredConsumers.remove(registeredkey);
+		}
 	}
 
 }

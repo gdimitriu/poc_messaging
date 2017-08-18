@@ -37,16 +37,14 @@ public interface IServiceJMS extends IServiceServer{
 	public void setProtocolType(final String protocolType);
 
 	/**
-	 * @param index the queue name index
 	 * @return the queueName
 	 */
-	public String getQueueName(final int index);
+	public String[] getQueueNames();
 
 	/**
 	 * @param queueName the queueName to set
-	 * @param index of the queue
 	 */
-	public void addQueueName(final String queueName, final int index);
+	public void addQueueName(final String queueName);
 	
 	
 	/**
@@ -55,22 +53,15 @@ public interface IServiceJMS extends IServiceServer{
 	 */
 	public void setQueuesNames(final List<String> queues);
 	
-	
 	/**
-	 * get the list of the queues.
-	 * @return list of queue names
+	 * @return the default connectionFactoryName
 	 */
-	public List<String> getQueuesNames();
+	public String getDefaultConnectionFactoryName();
 
 	/**
-	 * @return the connectionFactoryName
+	 * @param connectionFactoryName the default connectionFactoryName to set
 	 */
-	public String getConnectionFactoryName();
-
-	/**
-	 * @param connectionFactoryName the connectionFactoryName to set
-	 */
-	public void setConnectionFactoryName(final String connectionFactoryName);
+	public void setDefaultConnectionFactoryName(final String connectionFactoryName);
 
 	/**
 	 * @return the journalDirectory
@@ -111,4 +102,23 @@ public interface IServiceJMS extends IServiceServer{
 	 * @param serverPersistenceEnabled the serverPersistenceEnabled to set
 	 */
 	public void setServerPersistenceEnabled(final boolean serverPersistenceEnabled);
+	
+	/**
+	 * @param consumer that will consume the resource defined by it's queue.
+	 * @return registeredkey
+	 */
+	public String registerResourceConsumer(final IResourceProducerConsumer consumer);
+	
+	
+	/**
+	 * get the resource consumer that was registered
+	 * @param registeredkey
+	 * @return resource consumer or null;
+	 */
+	public IResourceProducerConsumer getRegisterResourceConsumer(final String registeredkey);
+	
+	/**
+	 * @param queueName for unregister consumer.
+	 */
+	public void unregisterResourceConsumer(final String registeredkey);
 }
