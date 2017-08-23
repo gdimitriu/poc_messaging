@@ -18,69 +18,53 @@ GNU General Public License for more details.
 You should have received a copy of the GNU General Public License
 along with poc_messaging.  If not, see <http://www.gnu.org/licenses/>.
 */
-package dynamic;
+package stervers.jms.processing;
 
 import java.io.IOException;
 
+import servers.jms.MultiDataQueryHolder;
 import utils.streams.wrappers.ByteArrayInputStreamWrapper;
 import utils.streams.wrappers.ByteArrayOutputStreamWrapper;
 import utils.streams.wrappers.StreamHolder;
 
-
 /**
  * This is part of transformationsEngine project.
- * This is the Processing step class, this in the test case is the second transformation done by digester.
+ * This is the PostProcessing step class, this in the test case is the third transformation done by digester.
  * @author Gabriel Dimitriu
  *
  */
-public class ProcessingStep {
+public class PostProcessingStep{
 
-	/** mapping or processing */
-	private String mappingName = null;
-	/** factory for the engine */
-	private String factoryEngine = null;
+	private String mode = null;
 	
-	public ProcessingStep() {
+	/**
+	 * 
+	 */
+	public PostProcessingStep() {
 		// TODO Auto-generated constructor stub
 	}
-
+	
 	/**
-	 * get the processing mapping
-	 * @return mapping
+	 * @return the mode
 	 */
-	public String getMappingName() {
-		return mappingName;
+	public String getMode() {
+		return mode;
 	}
 
 	/**
-	 * set the processing mapping
-	 * @param mapping
+	 * @param mode the mode to set
 	 */
-	public void setMappingName(final String mapping) {
-		this.mappingName = mapping;
+	public void setMode(final String mode) {
+		this.mode = mode;
 	}
+
 
 	/**
-	 * get the factory for the mapping.
-	 * @return factory
+	 * @param holder
+	 * @param multipart
+	 * @throws IOException
 	 */
-	public String getFactoryEngine() {
-		return factoryEngine;
-	}
-
-	/**
-	 * set the factory for the mapping.
-	 * @param tfFactoryEngine
-	 */
-	public void setFactoryEngine(final String tfFactoryEngine) {
-		this.factoryEngine = tfFactoryEngine;
-	}
-
-	/* (non-Javadoc)
-	 * @see transformationsEngine.digester.steps.AbstractStep#execute(transformationsEngine.wrappers.StreamHolder)
-	 */
-	@Override
-	public void execute(final StreamHolder holder, final FormDataMultiPart multipart, final MultivaluedMap<String, String> queryParams)
+	public void execute(final StreamHolder holder, final MultiDataQueryHolder multipart)
 			throws IOException {
 		ByteArrayInputStreamWrapper input = holder.getInputStream();
 		ByteArrayOutputStreamWrapper output = new ByteArrayOutputStreamWrapper();
@@ -91,7 +75,7 @@ public class ProcessingStep {
 			output.write(buffer, 0, len);
 		    len = input.read(buffer);
 		}
-		String addedMode = "=>processing:" + mappingName + " factory =" + factoryEngine;
+		String addedMode = "=>postProcessing:" + mode;
 		output.write(addedMode.getBytes());
 		holder.setOutputStream(output);
 	}

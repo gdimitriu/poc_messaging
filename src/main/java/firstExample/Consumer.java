@@ -58,7 +58,7 @@ public class Consumer {
 
 	public void consume() throws JMSException {
 		ConnectionFactory connFactory = new ActiveMQConnectionFactory();
-		Connection connection = connFactory.createConnection();
+		Connection connection = connFactory.createConnection("user", "passwd");
 		
 		Session session = connection.createSession(false, Session.AUTO_ACKNOWLEDGE);
 		

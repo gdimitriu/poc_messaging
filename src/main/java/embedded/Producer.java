@@ -60,7 +60,7 @@ public class Producer {
 
 	public void produce() throws Exception {
 		ConnectionFactory connFactory = ActiveMQJMSClient.createConnectionFactory("tcp://localhost:61616", "connector");
-		Connection connection = connFactory.createConnection();
+		Connection connection = connFactory.createConnection("user","passwd");
 		
 		Session session = connection.createSession(false, Session.AUTO_ACKNOWLEDGE);
 		

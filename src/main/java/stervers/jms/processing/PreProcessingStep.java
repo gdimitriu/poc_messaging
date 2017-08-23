@@ -18,31 +18,32 @@ GNU General Public License for more details.
 You should have received a copy of the GNU General Public License
 along with poc_messaging.  If not, see <http://www.gnu.org/licenses/>.
 */
-package dynamic;
+package stervers.jms.processing;
 
 import java.io.IOException;
 
+import servers.jms.MultiDataQueryHolder;
 import utils.streams.wrappers.ByteArrayInputStreamWrapper;
 import utils.streams.wrappers.ByteArrayOutputStreamWrapper;
 import utils.streams.wrappers.StreamHolder;
 
 /**
  * This is part of transformationsEngine project.
- * This is the PostProcessing step class, this in the test case is the third transformation done by digester.
+ * This is the PreProcessing step class, this in the test case is the first transformation done by digester.
  * @author Gabriel Dimitriu
  *
  */
-public class PostProcessingStep{
+public class PreProcessingStep {
 
+	/** mode ex: xml2json, json2xml */
 	private String mode = null;
-	
 	/**
 	 * 
 	 */
-	public PostProcessingStep() {
+	public PreProcessingStep() {
 		// TODO Auto-generated constructor stub
 	}
-	
+
 	/**
 	 * @return the mode
 	 */
@@ -57,11 +58,12 @@ public class PostProcessingStep{
 		this.mode = mode;
 	}
 
-	/* (non-Javadoc)
-	 * @see transformationsEngine.digester.steps.AbstractStep#execute(transformationsEngine.wrappers.StreamHolder)
+	/**
+	 * @param holder
+	 * @param multipart
+	 * @throws IOException
 	 */
-	@Override
-	public void execute(final StreamHolder holder, final FormDataMultiPart multipart, final MultivaluedMap<String, String> queryParams)
+	public void execute(final StreamHolder holder, final MultiDataQueryHolder multipart)
 			throws IOException {
 		ByteArrayInputStreamWrapper input = holder.getInputStream();
 		ByteArrayOutputStreamWrapper output = new ByteArrayOutputStreamWrapper();
@@ -72,7 +74,7 @@ public class PostProcessingStep{
 			output.write(buffer, 0, len);
 		    len = input.read(buffer);
 		}
-		String addedMode = "=>postProcessing:" + mode;
+		String addedMode = "=>preProcessing:" + mode;
 		output.write(addedMode.getBytes());
 		holder.setOutputStream(output);
 	}

@@ -20,7 +20,10 @@
 package embedded;
 
 import java.util.Arrays;
-import java.util.Formatter;
+import java.util.HashMap;
+import java.util.HashSet;
+import java.util.Map;
+import java.util.Set;
 
 import javax.jms.Connection;
 import javax.jms.ConnectionFactory;
@@ -32,8 +35,11 @@ import javax.jms.Session;
 import javax.jms.StreamMessage;
 
 import org.apache.activemq.artemis.jms.server.embedded.EmbeddedJMS;
+import org.apache.activemq.artemis.spi.core.security.ActiveMQSecurityManager;
 import org.apache.activemq.artemis.core.config.Configuration;
 import org.apache.activemq.artemis.core.config.impl.ConfigurationImpl;
+import org.apache.activemq.artemis.core.security.CheckType;
+import org.apache.activemq.artemis.core.security.Role;
 import org.apache.activemq.artemis.jms.server.config.ConnectionFactoryConfiguration;
 import org.apache.activemq.artemis.jms.server.config.JMSConfiguration;
 import org.apache.activemq.artemis.jms.server.config.JMSQueueConfiguration;
@@ -47,6 +53,29 @@ import org.apache.activemq.artemis.jms.server.config.impl.JMSQueueConfigurationI
  *
  */
 public class Consumer {
+
+	private static final class MySecurityManager implements ActiveMQSecurityManager {
+		@Override
+		public boolean validateUserAndRole(String user, String password, Set<Role> roles, CheckType checkType) {
+			if (!validateUser(user, password)) {
+				return false;
+			}
+			for (Role role : roles) {
+				if (role.getName().equals(user)) {
+					if (checkType.hasRole(role)) {
+						return true;
+					}
+				}
+			}
+			return false;
+		}
+
+		@Override
+		public boolean validateUser(String user, String password) {
+			// TODO Auto-generated method stub
+			return true;
+		}
+	}
 
 	static public EmbeddedJMS jmsServer = null;
 	/**
@@ -80,7 +109,7 @@ public class Consumer {
 
 		ConnectionFactory connFactory = cf ; //new ActiveMQConnectionFactory();
 		
-		Connection connection = connFactory.createConnection();
+		Connection connection = connFactory.createConnection("user","passwd");
 		
 		Session session = connection.createSession(false, Session.AUTO_ACKNOWLEDGE);
 		
@@ -105,9 +134,16 @@ public class Consumer {
 	
 	public static void startServer() throws Exception {
 		 // Step 1. Create ActiveMQ Artemis core configuration, and set the properties accordingly
-	      Configuration configuration = new ConfigurationImpl().setPersistenceEnabled(false).setJournalDirectory("target/data/journal").setSecurityEnabled(false).addAcceptorConfiguration("tcp", "tcp://localhost:61616").
-	         addConnectorConfiguration("connector", "tcp://localhost:61616");
+	      Configuration configuration = new ConfigurationImpl().setPersistenceEnabled(false).setJournalDirectory("target/data/journal")
+	    		  .addAcceptorConfiguration("tcp", "tcp://localhost:61616").addConnectorConfiguration("connector", "tcp://localhost:61616");
 
+	      Map<String, Set<Role>> roles = new HashMap<String, Set<Role>>();
+	      Role role = new Role("user", true, true, false, false, false, false,false, false, false, false);
+	      Set<Role> userRole = new HashSet<Role>();
+	      userRole.add(role);
+	      roles.put("firstExampleQ", userRole);
+	      configuration = configuration.setSecurityEnabled(true).setSecurityRoles(roles);
+	      
 	      // Step 2. Create the JMS configuration
 	      JMSConfiguration jmsConfig = new JMSConfigurationImpl();
 
@@ -118,9 +154,11 @@ public class Consumer {
 	      // Step 4. Configure the JMS Queue
 	      JMSQueueConfiguration queueConfig = new JMSQueueConfigurationImpl().setName(Constants.FIRST_EXAMPLE_QUEUE).setDurable(false).setBindings("queue/" + Constants.FIRST_EXAMPLE_QUEUE);
 	      jmsConfig.getQueueConfigurations().add(queueConfig);
-
 	      // Step 5. Start the JMS Server using the ActiveMQ Artemis core server and the JMS configuration
-	      jmsServer = new EmbeddedJMS().setConfiguration(configuration).setJmsConfiguration(jmsConfig).start();
+	      
+	      jmsServer = new EmbeddedJMS().setConfiguration(configuration).setJmsConfiguration(jmsConfig);
+	      jmsServer.setSecurityManager(new MySecurityManager());
+	      jmsServer = jmsServer.start();
 	      System.out.println("Started Embedded JMS Server");
 	}
 }
