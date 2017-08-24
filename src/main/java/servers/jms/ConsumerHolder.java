@@ -28,6 +28,9 @@ import javax.jms.Session;
 
 import org.apache.activemq.artemis.jms.server.embedded.EmbeddedJMS;
 
+import servers.jms.security.CredentialForRCPProvider;
+import servers.jms.security.UserPassword;
+
 /**
  * @author Gabriel Dimitriu
  *
@@ -46,6 +49,7 @@ public class ConsumerHolder {
 	
 	public ConsumerHolder(final EmbeddedJMS server, final IResourceProducerConsumer resource) {
 		jmsServer = server;
+		this.resource = resource;
 	}
 
 	/**
@@ -56,7 +60,8 @@ public class ConsumerHolder {
 			// Step 6. Lookup JMS resources defined in the configuration
 			ConnectionFactory cf = (ConnectionFactory) jmsServer.lookup(resource.getFactoryName());
 
-			connection = cf.createConnection();
+			UserPassword credentials = CredentialForRCPProvider.getInstance().getCredentials(resource);
+			connection = cf.createConnection(credentials.getUser(), credentials.getPasswd());
 
 			Session session = connection.createSession(false, Session.AUTO_ACKNOWLEDGE);
 

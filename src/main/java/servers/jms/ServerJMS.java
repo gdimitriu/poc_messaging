@@ -19,13 +19,11 @@
  */
 package servers.jms;
 
-import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.HashMap;
 import java.util.HashSet;
 import java.util.List;
 import java.util.Map;
-import java.util.Map.Entry;
 import java.util.Set;
 
 import org.apache.activemq.artemis.core.config.Configuration;
@@ -37,6 +35,10 @@ import org.apache.activemq.artemis.jms.server.config.impl.ConnectionFactoryConfi
 import org.apache.activemq.artemis.jms.server.config.impl.JMSConfigurationImpl;
 import org.apache.activemq.artemis.jms.server.config.impl.JMSQueueConfigurationImpl;
 import org.apache.activemq.artemis.jms.server.embedded.EmbeddedJMS;
+
+import servers.jms.queues.QueuesProvider;
+import servers.jms.security.RolesProvider;
+import servers.jms.security.ServerSecurityManager;
 
 /**
  * @author Gabriel Dimitriu
@@ -65,7 +67,7 @@ public class ServerJMS implements IServiceJMS {
 	private Set<String> queuesNames = null;
 	
 	/** name of the default connection factory */
-	private String connectionDefaultFactoryName = null;
+	private String connectionDefaultFactoryName = "default";
 	
 	/** name of the journal directory */
 	private String journalDirectory = "target/data/journal";
@@ -77,7 +79,7 @@ public class ServerJMS implements IServiceJMS {
 	private boolean queueDurable = false;
 	
 	/** server security is enabled */
-	private boolean serverSecurityEnabled = false;
+	private boolean serverSecurityEnabled = true;
 	
 	/** server persistence is enabled */
 	private boolean serverPersistenceEnabled = false;
@@ -106,6 +108,7 @@ public class ServerJMS implements IServiceJMS {
 	 */
 	public static void main(String[] args) {
 		IServiceServer server = new ServerJMS();
+		((IServiceJMS) server).setQueuesNames(QueuesProvider.getInstance().getAllQueues());
 		try {
 			server.startServer();
 		} catch (Exception e) {
@@ -132,6 +135,9 @@ public class ServerJMS implements IServiceJMS {
 	    		.addAcceptorConfiguration(protocolType, protocolType + "://" + serverHost + ":" + serverPort)
 	    		.addConnectorConfiguration(serverName, protocolType + "://" + serverHost + ":" + serverPort);
 
+	    RolesProvider rolesProvider = new RolesProvider(queuesNames);
+	    configuration = configuration.setSecurityRoles(rolesProvider.getRoles());
+	    
 	    // Step 2. Create the JMS configuration
 	    jmsConfig = new JMSConfigurationImpl();
 
@@ -152,7 +158,9 @@ public class ServerJMS implements IServiceJMS {
 	    }
 
 	    // Step 5. Start the JMS Server using the ActiveMQ Artemis core server and the JMS configuration
-	    jmsServer = new EmbeddedJMS().setConfiguration(configuration).setJmsConfiguration(jmsConfig).start();
+	    jmsServer = new EmbeddedJMS().setConfiguration(configuration).setJmsConfiguration(jmsConfig);
+	    jmsServer.setSecurityManager(new ServerSecurityManager());
+	    jmsServer = jmsServer.start();
 	    System.out.println("Started Embedded JMS Server");
 	    
 	    registeredConsumers.entrySet().stream().forEach(consumer -> runtimeConsumers.put(consumer.getKey(), 
