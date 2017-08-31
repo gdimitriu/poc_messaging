@@ -23,6 +23,8 @@ import javax.jms.Connection;
 import javax.jms.ConnectionFactory;
 import javax.jms.Destination;
 import javax.jms.JMSException;
+import javax.jms.Message;
+import javax.jms.MessageConsumer;
 import javax.jms.MessageProducer;
 import javax.jms.Session;
 import javax.jms.StreamMessage;
@@ -67,6 +69,7 @@ public class Producer {
 		Destination destination = session.createQueue(Constants.FIRST_EXAMPLE_QUEUE);
 		
 		MessageProducer producer = session.createProducer(destination);
+		connection.start();
 		
 		StreamMessage message = session.createStreamMessage();
 		message.writeString("bla bla bla");
@@ -74,6 +77,25 @@ public class Producer {
 		
 		producer.send(message);
 		
+		String messageID = message.getJMSMessageID();
+		
+		session.close();
+		
+		session = connection.createSession(false, Session.AUTO_ACKNOWLEDGE);
+		
+		destination = session.createQueue(Constants.FIRST_EXAMPLE_QUEUE_FEEDBACK);
+		
+		MessageConsumer consumer = session.createConsumer(destination, "JMSCorrelationID = '" + 
+				messageID + "'");
+		
+		Message receivedMessage = consumer.receive();
+		
+		if (receivedMessage instanceof StreamMessage) {
+			System.out.println("received:" + ((StreamMessage) receivedMessage).readString());
+			System.out.println("send " + messageID + " messageId" + receivedMessage.getJMSMessageID() + " message correlation " + receivedMessage.getJMSCorrelationID());
+		}
+		
+		session.close();
 		connection.close();
 	}
 }

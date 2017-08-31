@@ -30,12 +30,11 @@ import javax.jms.ConnectionFactory;
 import javax.jms.JMSException;
 import javax.jms.Message;
 import javax.jms.MessageConsumer;
+import javax.jms.MessageProducer;
 import javax.jms.Queue;
 import javax.jms.Session;
 import javax.jms.StreamMessage;
 
-import org.apache.activemq.artemis.jms.server.embedded.EmbeddedJMS;
-import org.apache.activemq.artemis.spi.core.security.ActiveMQSecurityManager;
 import org.apache.activemq.artemis.core.config.Configuration;
 import org.apache.activemq.artemis.core.config.impl.ConfigurationImpl;
 import org.apache.activemq.artemis.core.security.CheckType;
@@ -46,6 +45,8 @@ import org.apache.activemq.artemis.jms.server.config.JMSQueueConfiguration;
 import org.apache.activemq.artemis.jms.server.config.impl.ConnectionFactoryConfigurationImpl;
 import org.apache.activemq.artemis.jms.server.config.impl.JMSConfigurationImpl;
 import org.apache.activemq.artemis.jms.server.config.impl.JMSQueueConfigurationImpl;
+import org.apache.activemq.artemis.jms.server.embedded.EmbeddedJMS;
+import org.apache.activemq.artemis.spi.core.security.ActiveMQSecurityManager;
 
 /**
  * first attempt to create a customer.
@@ -119,12 +120,25 @@ public class Consumer {
 		
 		connection.start();
 		Message message = consumer.receive();
+		String rec = ((StreamMessage) message).readString();
 		if (message instanceof StreamMessage) {
-			System.out.println(((StreamMessage) message).readString());
+			System.out.println(rec);
 			System.out.println(((StreamMessage) message).readBoolean());
 		}
+		session = connection.createSession(false, Session.AUTO_ACKNOWLEDGE);
+		
+		queue = (Queue) jmsServer.lookup("queue/" + Constants.FIRST_EXAMPLE_QUEUE_FEEDBACK);
+		
+		MessageProducer producer = session.createProducer(queue);
+		StreamMessage sendMessage = session.createStreamMessage();
+		sendMessage.writeString("ack for " + rec);
+		sendMessage.setJMSMessageID(message.getJMSMessageID());
+		sendMessage.setJMSCorrelationID(message.getJMSMessageID());
+		producer.send(sendMessage);
 		connection.close();
 		try {
+			System.out.println(String.format("Application started.%nHit enter to stop it..."));
+			System.in.read();
 			jmsServer.stop();
 		} catch (Exception e) {
 			// TODO Auto-generated catch block
@@ -141,7 +155,8 @@ public class Consumer {
 	      Role role = new Role("user", true, true, false, false, false, false,false, false, false, false);
 	      Set<Role> userRole = new HashSet<Role>();
 	      userRole.add(role);
-	      roles.put("firstExampleQ", userRole);
+	      roles.put(Constants.FIRST_EXAMPLE_QUEUE, userRole);
+	      roles.put(Constants.FIRST_EXAMPLE_QUEUE_FEEDBACK, userRole);
 	      configuration = configuration.setSecurityEnabled(true).setSecurityRoles(roles);
 	      
 	      // Step 2. Create the JMS configuration
@@ -153,6 +168,8 @@ public class Consumer {
 
 	      // Step 4. Configure the JMS Queue
 	      JMSQueueConfiguration queueConfig = new JMSQueueConfigurationImpl().setName(Constants.FIRST_EXAMPLE_QUEUE).setDurable(false).setBindings("queue/" + Constants.FIRST_EXAMPLE_QUEUE);
+	      jmsConfig.getQueueConfigurations().add(queueConfig);
+	      queueConfig = new JMSQueueConfigurationImpl().setName(Constants.FIRST_EXAMPLE_QUEUE_FEEDBACK).setDurable(false).setBindings("queue/" + Constants.FIRST_EXAMPLE_QUEUE_FEEDBACK);
 	      jmsConfig.getQueueConfigurations().add(queueConfig);
 	      // Step 5. Start the JMS Server using the ActiveMQ Artemis core server and the JMS configuration
 	      

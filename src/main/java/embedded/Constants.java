@@ -26,4 +26,5 @@ package embedded;
 public interface Constants {
 	String FIRST_EXAMPLE_QUEUE = "firstExampleQ";
 	String TCP_LOCALHOST = "tcp://localhost:64450";
+	String FIRST_EXAMPLE_QUEUE_FEEDBACK = "firstExampleQF";
 }
