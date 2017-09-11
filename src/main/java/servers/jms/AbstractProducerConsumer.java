@@ -19,8 +19,6 @@
  */
 package servers.jms;
 
-import javax.jms.Message;
-import javax.jms.MessageListener;
 import javax.jms.MessageProducer;
 import javax.jms.Session;
 
@@ -28,31 +26,43 @@ import javax.jms.Session;
  * @author Gabriel Dimitriu
  *
  */
-public interface IResourceProducerConsumer extends MessageListener {
+public abstract class AbstractProducerConsumer implements IResourceProducerConsumer {
+	
+	private Session currentSession = null;
+	
+	private MessageProducer replyTo = null;
+	
+	/* (non-Javadoc)
+	 * @see servers.jms.IResourceProducerConsumer#getFactoryName()
+	 */
+	@Override
+	public String getFactoryName() {
+		return this.getClass().getSimpleName();
+	}
+	
+	/* (non-Javadoc)
+	 * @see servers.jms.IResourceProducerConsumer#getSession()
+	 */
+	@Override
+	public Session getSession() {
+		return currentSession;
+	}
 
-	/**
-	 * @return queue name associated with this consumer.
+	/* (non-Javadoc)
+	 * @see servers.jms.IResourceProducerConsumer#getReplyTo()
 	 */
-	public String getQueueName();
-	
-	
-	/**
-	 * @return factory name as string
+	@Override
+	public MessageProducer getReplyTo() {
+		return replyTo;
+	}
+
+	/* (non-Javadoc)
+	 * @see servers.jms.IResourceProducerConsumer#setReplyTo(javax.jms.Session, javax.jms.MessageProducer)
 	 */
-	public String getFactoryName();
-	
-	
-	public Session getSession();
-	
-	/**
-	 * @return the producer which has to reply.
-	 */
-	public MessageProducer getReplyTo();
-	
-	
-	/**
-	 * @param session the session in which he has to reply.
-	 * @param replyTo the producer which has to be reply.
-	 */
-	public void setReplyTo(final Session session, final MessageProducer replyTo);
+	@Override
+	public void setReplyTo(final Session session, final MessageProducer replyTo) {
+		currentSession = session;
+		this.replyTo = replyTo;
+	}
+
 }

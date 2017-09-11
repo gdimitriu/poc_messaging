@@ -19,8 +19,6 @@
  */
 package embedded_listeners;
 
-import java.io.IOException;
-
 import javax.jms.JMSException;
 import javax.jms.Message;
 import javax.jms.MessageListener;
@@ -70,27 +68,5 @@ public class Consumer implements MessageListener {
 				e.printStackTrace();
 			}
 		}
-
-		stopServer();
 	}
-	
-	private void stopServer() {
-		System.out.println(String.format("Hit enter to stop it..."));
-		try {
-			System.in.read();
-		} catch (IOException e) {
-			e.printStackTrace();
-		}
-		try {
-			jmsServer.connection.close();
-		} catch (JMSException e) {
-			e.printStackTrace();
-		}
-		try {
-			jmsServer.jmsServer.stop();
-		} catch (Exception e) {
-			e.printStackTrace();
-		}
-	}
-
 }

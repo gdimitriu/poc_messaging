@@ -23,6 +23,7 @@ import javax.jms.Connection;
 import javax.jms.ConnectionFactory;
 import javax.jms.JMSException;
 import javax.jms.MessageConsumer;
+import javax.jms.MessageProducer;
 import javax.jms.Queue;
 import javax.jms.Session;
 
@@ -43,9 +44,8 @@ public class ConsumerHolder {
 		
 	/** connection used internally */
 	private Connection connection = null;
-	
-	/** consumer used internally */
-	private MessageConsumer consumer = null;
+
+	private ConnectionFactory cf = null;
 	
 	public ConsumerHolder(final EmbeddedJMS server, final IResourceProducerConsumer resource) {
 		jmsServer = server;
@@ -58,7 +58,7 @@ public class ConsumerHolder {
 	public void start(){
 		try {
 			// Step 6. Lookup JMS resources defined in the configuration
-			ConnectionFactory cf = (ConnectionFactory) jmsServer.lookup(resource.getFactoryName());
+			cf = (ConnectionFactory) jmsServer.lookup(resource.getFactoryName());
 
 			UserPassword credentials = CredentialForRCPProvider.getInstance().getCredentials(resource);
 			connection = cf.createConnection(credentials.getUser(), credentials.getPasswd());
@@ -67,11 +67,15 @@ public class ConsumerHolder {
 
 			Queue queue = (Queue) jmsServer.lookup("queue/" + resource.getQueueName());
 
-			consumer = session.createConsumer(queue);
+			MessageConsumer consumer = session.createConsumer(queue);
+			
+			MessageProducer replyTo = session.createProducer(null);
+			
+			resource.setReplyTo(session, replyTo);
+			
+			consumer.setMessageListener(resource);
 
 			connection.start();
-			
-			startConsumerToReceive();
 			
 		} catch (JMSException e) {
 			e.printStackTrace();
@@ -89,14 +93,5 @@ public class ConsumerHolder {
 		} catch (JMSException e) {
 			e.printStackTrace();
 		}
-	}
-	
-	private void startConsumerToReceive() {
-		Thread th = new Thread() {
-			public void run() {
-				resource.consume(consumer);
-			}
-		};
-		th.start();
 	}
 }

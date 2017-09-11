@@ -19,6 +19,7 @@
  */
 package embedded_listeners;
 
+import java.io.IOException;
 import java.util.Arrays;
 import java.util.HashMap;
 import java.util.HashSet;
@@ -71,6 +72,7 @@ public class Server {
 			Server server = new Server();
 			server.starteEmbeddedServer();
 			server.startConsumerServer();
+			server.stopServer();
 		} catch (JMSException e) {
 			e.printStackTrace();
 		} catch (Exception e) {
@@ -144,4 +146,25 @@ public class Server {
 		
 		consumer.setMessageListener(new Consumer(this, replyTo));
 	}
+	
+	private void stopServer() {
+		System.out.println(String.format("Hit enter to stop it..."));
+		try {
+			System.in.read();
+		} catch (IOException e) {
+			e.printStackTrace();
+		}
+		try {
+			connection.close();
+		} catch (JMSException e) {
+			e.printStackTrace();
+		}
+		try {
+			jmsServer.stop();
+		} catch (Exception e) {
+			e.printStackTrace();
+		}
+	}
+
+
 }

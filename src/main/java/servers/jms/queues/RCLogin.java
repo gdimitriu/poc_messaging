@@ -19,15 +19,17 @@
  */
 package servers.jms.queues;
 
+import javax.jms.Message;
 import javax.jms.MessageConsumer;
 
+import servers.jms.AbstractProducerConsumer;
 import servers.jms.IResourceProducerConsumer;
 
 /**
  * @author Gabriel Dimitriu
  *
  */
-public class RCLogin implements IResourceProducerConsumer {
+public class RCLogin extends AbstractProducerConsumer {
 
 	/**
 	 * 
@@ -44,21 +46,9 @@ public class RCLogin implements IResourceProducerConsumer {
 		return IQueueNameConstants.LOGIN;
 	}
 
-	/* (non-Javadoc)
-	 * @see servers.jms.IResourceProducerConsumer#getFactoryName()
-	 */
 	@Override
-	public String getFactoryName() {
-		return this.getClass().getSimpleName();
-	}
-
-	/* (non-Javadoc)
-	 * @see servers.jms.IResourceProducerConsumer#consume(javax.jms.MessageConsumer)
-	 */
-	@Override
-	public void consume(MessageConsumer consumer) {
+	public void onMessage(Message message) {
 		// TODO Auto-generated method stub
-
+		
 	}
-
 }
