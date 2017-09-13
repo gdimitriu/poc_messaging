@@ -19,14 +19,40 @@
  */
 package servers.jms.queues;
 
+import javax.jms.Message;
+
+import servers.jms.AbstractProducerConsumer;
+
 /**
+ * Router for input messages to the correct internal queues.
  * @author Gabriel Dimitriu
  *
  */
-public interface IQueueNameConstants {
+public class RCransactionRouter extends AbstractProducerConsumer {
 
-	String ADD = "add";
-	String TRANSFORM = "transform";
-	String AUTHENTICATION = "authentication";
-	String TRANSACTION = "transaction";
+	/**
+	 * 
+	 */
+	public RCransactionRouter() {
+		// TODO Auto-generated constructor stub
+	}
+
+	/* (non-Javadoc)
+	 * @see servers.jms.IResourceProducerConsumer#getQueueName()
+	 */
+	@Override
+	public String getQueueName() {
+		// TODO Auto-generated method stub
+		return IQueueNameConstants.TRANSACTION;
+	}
+
+	/* (non-Javadoc)
+	 * @see javax.jms.MessageListener#onMessage(javax.jms.Message)
+	 */
+	@Override
+	public void onMessage(Message message) {
+		// TODO Auto-generated method stub
+
+	}
+
 }

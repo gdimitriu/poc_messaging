@@ -17,16 +17,8 @@
     You should have received a copy of the GNU General Public License
     along with poc_messaging.  If not, see <http://www.gnu.org/licenses/>.
  */
-package servers.jms.queues;
-
 /**
  * @author Gabriel Dimitriu
  *
  */
-public interface IQueueNameConstants {
-
-	String ADD = "add";
-	String TRANSFORM = "transform";
-	String AUTHENTICATION = "authentication";
-	String TRANSACTION = "transaction";
-}
+package enterprise_integration_patterns_ex;

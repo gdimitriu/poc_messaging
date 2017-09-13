@@ -22,7 +22,8 @@ package servers.jms;
 import servers.jms.queues.QueuesProvider;
 import servers.jms.queues.RCAddTransformer;
 import servers.jms.queues.RCFlow;
-import servers.jms.queues.RCLogin;
+import servers.jms.queues.RCransactionRouter;
+import servers.jms.queues.RCAuthentication;
 
 /**
  * @author Gabriel Dimitriu
@@ -45,9 +46,10 @@ public class MainServer {
 		IServiceJMS serverJms = (IServiceJMS) server;
 		serverJms.setName("MainServer");
 		serverJms.setQueuesNames(QueuesProvider.getInstance().getAllQueues());
+		serverJms.registerResourceConsumer(new RCransactionRouter());
 		serverJms.registerResourceConsumer(new RCAddTransformer());
 		serverJms.registerResourceConsumer(new RCFlow());
-		serverJms.registerResourceConsumer(new RCLogin());
+		serverJms.registerResourceConsumer(new RCAuthentication());
 		try {
 			server.startServer();
 		} catch (Exception e) {

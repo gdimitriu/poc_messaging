@@ -24,7 +24,7 @@ import java.util.Map;
 
 import servers.jms.queues.RCAddTransformer;
 import servers.jms.queues.RCFlow;
-import servers.jms.queues.RCLogin;
+import servers.jms.queues.RCAuthentication;
 
 /**
  * @author Gabriel Dimitriu
@@ -43,7 +43,7 @@ public class CredentialForRCPProvider {
 	private CredentialForRCPProvider() {
 		credentials.put(RCAddTransformer.class.getCanonicalName(), new UserPassword("system", "system"));
 		credentials.put(RCFlow.class.getCanonicalName(), new UserPassword("system", "system"));
-		credentials.put(RCLogin.class.getCanonicalName(), new UserPassword("system", "system"));
+		credentials.put(RCAuthentication.class.getCanonicalName(), new UserPassword("system", "system"));
 	}
 
 	/**

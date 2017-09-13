@@ -17,16 +17,21 @@
     You should have received a copy of the GNU General Public License
     along with poc_messaging.  If not, see <http://www.gnu.org/licenses/>.
  */
-package servers.jms.queues;
+package servers.jms.protocol;
 
 /**
  * @author Gabriel Dimitriu
  *
  */
-public interface IQueueNameConstants {
+public enum JmsTransactionProtocol {
 
-	String ADD = "add";
-	String TRANSFORM = "transform";
-	String AUTHENTICATION = "authentication";
-	String TRANSACTION = "transaction";
+	/**
+	 * this has the following capabilities.
+	 * - it has to receive a login
+	 * - it has to receive a cookie (userData from REST)
+	 * - it has to receive an add Operation
+	 * - it has to receive a transform Operation
+	 * - it has to receive a logof operation
+	 * - the logon, add, transform, logof operation are routed to the internal queues.
+	 */
 }

@@ -35,11 +35,11 @@ public class QueuesProvider {
 	/**
 	 * 
 	 */
-	private QueuesProvider() {
-		systemQueues.add(IQueueNameConstants.LOGIN);
-		systemQueues.add(IQueueNameConstants.TRANSFORMER);
-		systemQueues.add(IQueueNameConstants.FLOW);
-		systemQueues.add(IQueueNameConstants.FEEDBACK);
+	private QueuesProvider() {		
+		systemQueues.add(IQueueNameConstants.TRANSACTION);
+		systemQueues.add(IQueueNameConstants.ADD);
+		systemQueues.add(IQueueNameConstants.TRANSFORM);
+		systemQueues.add(IQueueNameConstants.AUTHENTICATION);
 	}
 
 	

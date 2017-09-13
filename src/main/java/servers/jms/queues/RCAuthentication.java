@@ -20,21 +20,18 @@
 package servers.jms.queues;
 
 import javax.jms.Message;
-import javax.jms.MessageConsumer;
-
 import servers.jms.AbstractProducerConsumer;
-import servers.jms.IResourceProducerConsumer;
 
 /**
  * @author Gabriel Dimitriu
  *
  */
-public class RCLogin extends AbstractProducerConsumer {
+public class RCAuthentication extends AbstractProducerConsumer {
 
 	/**
 	 * 
 	 */
-	public RCLogin() {
+	public RCAuthentication() {
 		// TODO Auto-generated constructor stub
 	}
 
@@ -43,7 +40,7 @@ public class RCLogin extends AbstractProducerConsumer {
 	 */
 	@Override
 	public String getQueueName() {
-		return IQueueNameConstants.LOGIN;
+		return IQueueNameConstants.AUTHENTICATION;
 	}
 
 	@Override

@@ -40,7 +40,7 @@ public class RCAddTransformer extends AbstractProducerConsumer {
 	 */
 	@Override
 	public String getQueueName() {
-		return IQueueNameConstants.TRANSFORMER;
+		return IQueueNameConstants.ADD;
 	}
 
 	@Override

@@ -40,7 +40,7 @@ public class RCFlow extends AbstractProducerConsumer {
 	 */
 	@Override
 	public String getQueueName() {
-		return IQueueNameConstants.FLOW;
+		return IQueueNameConstants.TRANSFORM;
 	}
 
 	@Override
