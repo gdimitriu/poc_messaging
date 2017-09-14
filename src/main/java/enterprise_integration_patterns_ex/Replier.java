@@ -31,8 +31,6 @@ import javax.jms.MessageProducer;
 import javax.jms.Session;
 import javax.jms.TextMessage;
 
-import org.apache.camel.component.jms.reply.ReplyManager;
-
 /**
  * Replier
  * @author Gabriel Dimitriu
