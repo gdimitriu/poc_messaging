@@ -19,6 +19,7 @@
  */
 package servers.jms;
 
+import javax.jms.Connection;
 import javax.jms.MessageProducer;
 import javax.jms.Session;
 
@@ -31,6 +32,8 @@ public abstract class AbstractProducerConsumer implements IResourceProducerConsu
 	private Session currentSession = null;
 	
 	private MessageProducer replyTo = null;
+	
+	private Connection currentConnection = null;
 	
 	/* (non-Javadoc)
 	 * @see servers.jms.IResourceProducerConsumer#getFactoryName()
@@ -63,6 +66,14 @@ public abstract class AbstractProducerConsumer implements IResourceProducerConsu
 	public void setReplyTo(final Session session, final MessageProducer replyTo) {
 		currentSession = session;
 		this.replyTo = replyTo;
+	}
+
+	public Connection getCurrentConnection() {
+		return currentConnection;
+	}
+
+	public void setCurrentConnection(Connection currentConnection) {
+		this.currentConnection = currentConnection;
 	}
 
 }

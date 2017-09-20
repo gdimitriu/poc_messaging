@@ -19,40 +19,38 @@
  */
 package servers.jms.queues;
 
-import javax.jms.Message;
+import java.util.HashMap;
+import java.util.Map;
 
-import servers.jms.AbstractProducerConsumer;
+import servers.jms.protocol.ICommands;
 
 /**
- * Router for input messages to the correct internal queues.
  * @author Gabriel Dimitriu
  *
  */
-public class RCransactionRouter extends AbstractProducerConsumer {
+public class RouteProvider {
+	
+	private static RouteProvider singleton = new RouteProvider();
+	
+	private Map<String, String> routes = null;
 
 	/**
 	 * 
 	 */
-	public RCransactionRouter() {
-		// TODO Auto-generated constructor stub
+	private RouteProvider() {
+		routes = new HashMap<String, String>();
+		routes.put(ICommands.LOGIN, IQueueNameConstants.AUTHENTICATION);
+		routes.put(ICommands.LOGOUT, IQueueNameConstants.AUTHENTICATION);
+	}
+	
+	public static RouteProvider getInstance() {
+		return singleton;
 	}
 
-	/* (non-Javadoc)
-	 * @see servers.jms.IResourceProducerConsumer#getQueueName()
-	 */
-	@Override
-	public String getQueueName() {
-		// TODO Auto-generated method stub
-		return IQueueNameConstants.TRANSACTION;
+	public String getRouteQueueName(final String inputCommandName) {
+		if (routes.containsKey(inputCommandName)) {
+			return routes.get(inputCommandName);
+		}
+		return inputCommandName;
 	}
-
-	/* (non-Javadoc)
-	 * @see javax.jms.MessageListener#onMessage(javax.jms.Message)
-	 */
-	@Override
-	public void onMessage(Message message) {
-		// TODO Auto-generated method stub
-
-	}
-
 }

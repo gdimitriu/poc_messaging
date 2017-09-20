@@ -73,6 +73,8 @@ public class ConsumerHolder {
 			
 			resource.setReplyTo(session, replyTo);
 			
+			resource.setCurrentConnection(connection);
+			
 			consumer.setMessageListener(resource);
 
 			connection.start();

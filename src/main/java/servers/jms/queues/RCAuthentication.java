@@ -19,7 +19,11 @@
  */
 package servers.jms.queues;
 
+import javax.jms.JMSException;
 import javax.jms.Message;
+import javax.jms.MessageProducer;
+import javax.jms.StreamMessage;
+
 import servers.jms.AbstractProducerConsumer;
 
 /**
@@ -45,7 +49,21 @@ public class RCAuthentication extends AbstractProducerConsumer {
 
 	@Override
 	public void onMessage(Message message) {
-		// TODO Auto-generated method stub
+		if (message instanceof StreamMessage) {
+			StreamMessage strMsg = (StreamMessage) message;
+			try {
+				System.out.println(strMsg.readString());
+				System.out.println(strMsg.readString());
+				StreamMessage retMsg = getSession().createStreamMessage();
+				retMsg.setJMSCorrelationID(message.getJMSCorrelationID());
+				MessageProducer producer = getSession().createProducer(message.getJMSReplyTo());
+				retMsg.writeString("no authorization");
+				producer.send(retMsg);
+			} catch (JMSException e) {
+				// TODO Auto-generated catch block
+				e.printStackTrace();
+			}			
+		}
 		
 	}
 }

@@ -3,6 +3,8 @@
 	DO NOT ALTER OR REMOVE COPYRIGHT NOTICES OR THIS FILE HEADER.
 
     This file is part of poc_messaging project.
+    This file is a copy of a code from Enterprise Integration Patterns,
+    	by Gregor Hohpe & Bobby Woolf.
 
     poc_messaging is free software: you can redistribute it and/or modify
     it under the terms of the GNU General Public License as published by
@@ -17,46 +19,31 @@
     You should have received a copy of the GNU General Public License
     along with poc_messaging.  If not, see <http://www.gnu.org/licenses/>.
  */
-package servers.jms;
+package enterprise_integration_patterns_ex.publisher_subscriber;
 
-import javax.jms.Connection;
-import javax.jms.MessageListener;
-import javax.jms.MessageProducer;
-import javax.jms.Session;
+import java.util.Observable;
+import java.util.Observer;
 
 /**
  * @author Gabriel Dimitriu
  *
  */
-public interface IResourceProducerConsumer extends MessageListener {
+public class ObserverSubject implements Observer {
 
 	/**
-	 * @return queue name associated with this consumer.
+	 * 
 	 */
-	public String getQueueName();
-	
-	
-	/**
-	 * @return factory name as string
-	 */
-	public String getFactoryName();
-	
-	
-	public Session getSession();
-	
-	/**
-	 * @return the producer which has to reply.
-	 */
-	public MessageProducer getReplyTo();
-	
-	
-	/**
-	 * @param session the session in which he has to reply.
-	 * @param replyTo the producer which has to be reply.
-	 */
-	public void setReplyTo(final Session session, final MessageProducer replyTo);
-	
-	public Connection getCurrentConnection();
+	public ObserverSubject() {
+		// TODO Auto-generated constructor stub
+	}
 
-	public void setCurrentConnection(Connection currentConnection);
+	/* (non-Javadoc)
+	 * @see java.util.Observer#update(java.util.Observable, java.lang.Object)
+	 */
+	@Override
+	public void update(Observable o, Object arg) {
+		// TODO Auto-generated method stub
+
+	}
+
 }

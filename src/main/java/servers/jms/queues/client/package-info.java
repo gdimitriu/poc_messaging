@@ -17,46 +17,8 @@
     You should have received a copy of the GNU General Public License
     along with poc_messaging.  If not, see <http://www.gnu.org/licenses/>.
  */
-package servers.jms;
-
-import javax.jms.Connection;
-import javax.jms.MessageListener;
-import javax.jms.MessageProducer;
-import javax.jms.Session;
-
 /**
  * @author Gabriel Dimitriu
  *
  */
-public interface IResourceProducerConsumer extends MessageListener {
-
-	/**
-	 * @return queue name associated with this consumer.
-	 */
-	public String getQueueName();
-	
-	
-	/**
-	 * @return factory name as string
-	 */
-	public String getFactoryName();
-	
-	
-	public Session getSession();
-	
-	/**
-	 * @return the producer which has to reply.
-	 */
-	public MessageProducer getReplyTo();
-	
-	
-	/**
-	 * @param session the session in which he has to reply.
-	 * @param replyTo the producer which has to be reply.
-	 */
-	public void setReplyTo(final Session session, final MessageProducer replyTo);
-	
-	public Connection getCurrentConnection();
-
-	public void setCurrentConnection(Connection currentConnection);
-}
+package servers.jms.queues.client;

@@ -79,7 +79,7 @@ public class ServerJMS implements IServiceJMS {
 	private boolean queueDurable = false;
 	
 	/** server security is enabled */
-	private boolean serverSecurityEnabled = true;
+	private boolean serverSecurityEnabled = false;
 	
 	/** server persistence is enabled */
 	private boolean serverPersistenceEnabled = false;
