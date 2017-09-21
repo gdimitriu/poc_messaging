@@ -35,6 +35,10 @@ class MySecurityManager implements ActiveMQSecurityManager {
 		if (!validateUser(user, password)) {
 			return false;
 		}
+		if (checkType.equals(CheckType.CREATE_NON_DURABLE_QUEUE) ||
+				checkType.equals(CheckType.DELETE_NON_DURABLE_QUEUE)) {
+			return true;
+		}
 		for (Role role : roles) {
 			if (role.getName().equals(user)) {
 				if (checkType.hasRole(role)) {
