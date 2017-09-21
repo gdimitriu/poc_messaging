@@ -28,9 +28,6 @@ import javax.jms.MessageConsumer;
 import javax.jms.MessageProducer;
 import javax.jms.Session;
 import javax.jms.StreamMessage;
-import javax.jms.Topic;
-import javax.jms.TopicSubscriber;
-
 import org.apache.activemq.artemis.api.jms.ActiveMQJMSClient;
 
 import servers.jms.protocol.ICommands;
@@ -67,14 +64,13 @@ public class QueueProducerConsumer {
 	public void produce() throws Exception {
 		ConnectionFactory connFactory = ActiveMQJMSClient.createConnectionFactory("tcp://localhost:61616", "default");
 		Connection connection = connFactory.createConnection("system","system");
-		connection.setClientID("system:" + this.getClass().getSimpleName());
+//		connection.setClientID("system:" + this.getClass().getSimpleName());
 		Session session = connection.createSession(false, Session.AUTO_ACKNOWLEDGE);
 		
 		Destination destination = session.createQueue(IQueueNameConstants.TRANSACTION);
 		
 		MessageProducer producer = session.createProducer(destination);
-//		Destination replyTo = session.createQueue(IQueueNameConstants.TRANSACTION_RETURN);
-		Topic replyTo = session.createTopic(IQueueNameConstants.TRANSACTION_RETURN);
+		Destination replyTo = session.createQueue(IQueueNameConstants.TRANSACTION_RETURN);
 		connection.start();
 		
 		StreamMessage message = session.createStreamMessage();
@@ -94,8 +90,6 @@ public class QueueProducerConsumer {
 		
 		MessageConsumer consumer = session.createConsumer(replyTo, "JMSCorrelationID = '" + 
 				messageID + "'");
-		
-//		TopicSubscriber consumer = session.createDurableSubscriber(replyTo, "returnData");
 		
 		Message receivedMessage = consumer.receive();
 		

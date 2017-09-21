@@ -79,10 +79,10 @@ public class ServerJMS implements IServiceJMS {
 	private boolean queueDurable = true;
 	
 	/** server security is enabled */
-	private boolean serverSecurityEnabled = false;
+	private boolean serverSecurityEnabled = true;
 	
 	/** server persistence is enabled */
-	private boolean serverPersistenceEnabled = false;
+	private boolean serverPersistenceEnabled = true;
 	
 	/** map of consumers and queues */
 	private Map<String, IResourceProducerConsumer> registeredConsumers = null;

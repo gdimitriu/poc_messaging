@@ -43,6 +43,9 @@ public class ServerSecurityManager implements ActiveMQSecurityManager{
 		if (!validateUser(user, password)) {
 			return false;
 		}
+		if (CheckType.CREATE_NON_DURABLE_QUEUE.equals(checkType) || CheckType.DELETE_NON_DURABLE_QUEUE.equals(checkType)) {
+			return true;
+		}
 		for (Role role : roles) {
 			if (role.getName().equals(user)) {
 				if (checkType.hasRole(role)) {

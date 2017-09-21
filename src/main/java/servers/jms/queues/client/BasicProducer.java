@@ -35,6 +35,7 @@ import servers.jms.protocol.ICommands;
 import servers.jms.queues.IQueueNameConstants;
 
 /**
+ * first version it has to have the security disable because it creates temporary queue.
  * @author Gabriel Dimitriu
  *
  */
