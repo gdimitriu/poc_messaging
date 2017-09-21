@@ -40,6 +40,7 @@ public class QueuesProvider {
 		systemQueues.add(IQueueNameConstants.ADD);
 		systemQueues.add(IQueueNameConstants.TRANSFORM);
 		systemQueues.add(IQueueNameConstants.AUTHENTICATION);
+		systemQueues.add(IQueueNameConstants.TRANSACTION_RETURN);
 	}
 
 	

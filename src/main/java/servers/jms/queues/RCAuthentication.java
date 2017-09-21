@@ -19,11 +19,12 @@
  */
 package servers.jms.queues;
 
+import javax.jms.DeliveryMode;
+import javax.jms.Destination;
 import javax.jms.JMSException;
 import javax.jms.Message;
 import javax.jms.MessageProducer;
 import javax.jms.StreamMessage;
-
 import servers.jms.AbstractProducerConsumer;
 
 /**
@@ -56,8 +57,15 @@ public class RCAuthentication extends AbstractProducerConsumer {
 				System.out.println(strMsg.readString());
 				StreamMessage retMsg = getSession().createStreamMessage();
 				retMsg.setJMSCorrelationID(message.getJMSCorrelationID());
-				MessageProducer producer = getSession().createProducer(message.getJMSReplyTo());
+				Destination replyTo = null;
+				if (message.getJMSReplyTo() != null) {
+					replyTo = message.getJMSReplyTo();
+				} else {
+					replyTo = getSession().createQueue(IQueueNameConstants.TRANSACTION_RETURN);
+				}
+				MessageProducer producer = getSession().createProducer(replyTo);
 				retMsg.writeString("no authorization");
+				producer.setDeliveryMode(DeliveryMode.PERSISTENT);
 				producer.send(retMsg);
 			} catch (JMSException e) {
 				// TODO Auto-generated catch block

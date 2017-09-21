@@ -19,6 +19,8 @@
  */
 package servers.jms;
 
+import java.io.IOException;
+
 import servers.jms.queues.QueuesProvider;
 import servers.jms.queues.RCAddTransformer;
 import servers.jms.queues.RCFlow;
@@ -52,9 +54,15 @@ public class MainServer {
 		serverJms.registerResourceConsumer(new RCAuthentication());
 		try {
 			server.startServer();
+			System.out.println(String.format("Hit enter to stop it..."));
+			try {
+				System.in.read();
+			} catch (IOException e) {
+				e.printStackTrace();
+			}
+			server.stopServer();
 		} catch (Exception e) {
 			e.printStackTrace();
 		}
 	}
-
 }

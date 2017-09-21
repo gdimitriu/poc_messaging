@@ -76,7 +76,7 @@ public class ServerJMS implements IServiceJMS {
 	private String serverHost = "localhost";
 	
 	/** durability of queue */
-	private boolean queueDurable = false;
+	private boolean queueDurable = true;
 	
 	/** server security is enabled */
 	private boolean serverSecurityEnabled = false;

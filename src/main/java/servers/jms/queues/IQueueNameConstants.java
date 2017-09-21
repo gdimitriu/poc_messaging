@@ -29,4 +29,5 @@ public interface IQueueNameConstants {
 	String TRANSFORM = "transform";
 	String AUTHENTICATION = "authentication";
 	String TRANSACTION = "transaction";
+	String TRANSACTION_RETURN = "transaction_return";
 }
