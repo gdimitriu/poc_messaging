@@ -67,6 +67,7 @@ public class RCAuthentication extends AbstractProducerConsumer {
 				retMsg.writeString("no authorization");
 				producer.setDeliveryMode(DeliveryMode.PERSISTENT);
 				producer.send(retMsg);
+				getSession().commit();
 			} catch (JMSException e) {
 				// TODO Auto-generated catch block
 				e.printStackTrace();

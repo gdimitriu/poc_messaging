@@ -81,12 +81,7 @@ public class QueueProducerConsumer {
 		
 		producer.send(message);
 		
-		String messageID = message.getJMSMessageID();
-		
-		session.close();
-		
-		session = connection.createSession(false, Session.AUTO_ACKNOWLEDGE);
-		
+		String messageID = message.getJMSMessageID();				
 		
 		MessageConsumer consumer = session.createConsumer(replyTo, "JMSCorrelationID = '" + 
 				messageID + "'");

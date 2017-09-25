@@ -100,6 +100,7 @@ public class RCTransactionRouter extends AbstractProducerConsumer {
 		MessageProducer producer = getSession().createProducer(destination);
 		producer.setDeliveryMode(DeliveryMode.PERSISTENT);
 		producer.send(strMsg);
+		getSession().commit();
 	}
 
 }

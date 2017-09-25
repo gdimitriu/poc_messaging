@@ -63,7 +63,7 @@ public class ConsumerHolder {
 			UserPassword credentials = CredentialForRCPProvider.getInstance().getCredentials(resource);
 			connection = cf.createConnection(credentials.getUser(), credentials.getPasswd());
 
-			Session session = connection.createSession(false, Session.AUTO_ACKNOWLEDGE);
+			Session session = connection.createSession(true, Session.AUTO_ACKNOWLEDGE);
 
 			Queue queue = (Queue) jmsServer.lookup("queue/" + resource.getQueueName());
 
