@@ -24,6 +24,7 @@ import javax.jms.Destination;
 import javax.jms.JMSException;
 import javax.jms.Message;
 import javax.jms.MessageProducer;
+import javax.jms.Session;
 import javax.jms.StreamMessage;
 
 import servers.jms.AbstractProducerConsumer;
@@ -48,15 +49,14 @@ public class RCTransactionRouter extends AbstractProducerConsumer {
 	 */
 	@Override
 	public String getQueueName() {
-		// TODO Auto-generated method stub
 		return IQueueNameConstants.TRANSACTION;
 	}
 
 	/* (non-Javadoc)
-	 * @see javax.jms.MessageListener#onMessage(javax.jms.Message)
+	 * @see servers.jms.IJMSRuntimeResource#processMessage(javax.jms.Session, javax.jms.Message)
 	 */
 	@Override
-	public void onMessage(Message message) {
+	public void processMessage(final Session session, final Message message) {
 		if (message instanceof StreamMessage) {
 			StreamMessage strMsg = (StreamMessage) message;
 			Destination replyTo = null;
@@ -72,35 +72,34 @@ public class RCTransactionRouter extends AbstractProducerConsumer {
 				String command = strMsg.getStringProperty(ICommands.COMMAND_PROPERTY);
 				if (ICommands.getAllCommands().contains(command)) {
 					String route = RouteProvider.getInstance().getRouteQueueName(command);
-					routeMessage(route, strMsg);
+					routeMessage(session, route, strMsg);
 				}
 			} catch (JMSException e) {
 				// TODO Auto-generated catch block
 				e.printStackTrace();
 				try {
-					returnErrorMessage(replyTo, e, message);
+					returnErrorMessage(session, replyTo, e, message);
 				} catch (JMSException e1) {
 					e1.printStackTrace();
 				}
 				return;
 			}
 		}
-
 	}
 
-	private void returnErrorMessage(Destination replyTo, JMSException exception, Message message) throws JMSException{
-		StreamMessage retMsg = getSession().createStreamMessage();
+	private void returnErrorMessage(Session session, Destination replyTo, JMSException exception, Message message) throws JMSException{
+		StreamMessage retMsg = session.createStreamMessage();
 		retMsg.writeString(exception.getLocalizedMessage());
 		retMsg.setJMSCorrelationID(message.getJMSMessageID());
-		getSession().createProducer(replyTo).send(retMsg);
+		session.createProducer(replyTo).send(retMsg);
 	}
 
-	private void routeMessage(String route, StreamMessage strMsg) throws JMSException {
-		Destination destination = getSession().createQueue(route);
-		MessageProducer producer = getSession().createProducer(destination);
+	private void routeMessage(Session session, String route, StreamMessage strMsg) throws JMSException {
+		Destination destination = session.createQueue(route);
+		MessageProducer producer = session.createProducer(destination);
 		producer.setDeliveryMode(DeliveryMode.PERSISTENT);
 		producer.send(strMsg);
-		getSession().commit();
+		session.commit();
 	}
 
 }

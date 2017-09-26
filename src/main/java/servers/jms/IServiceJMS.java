@@ -107,7 +107,7 @@ public interface IServiceJMS extends IServiceServer{
 	 * @param consumer that will consume the resource defined by it's queue.
 	 * @return registeredkey
 	 */
-	public String registerResourceConsumer(final IResourceProducerConsumer consumer);
+	public String registerResourceConsumer(final IJMSRuntimeResource consumer);
 	
 	
 	/**
@@ -115,7 +115,7 @@ public interface IServiceJMS extends IServiceServer{
 	 * @param registeredkey
 	 * @return resource consumer or null;
 	 */
-	public IResourceProducerConsumer getRegisterResourceConsumer(final String registeredkey);
+	public IJMSRuntimeResource getRegisterResourceConsumer(final String registeredkey);
 	
 	/**
 	 * @param queueName for unregister consumer.

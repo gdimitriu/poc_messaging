@@ -20,6 +20,8 @@
 package servers.jms.queues;
 
 import javax.jms.Message;
+import javax.jms.Session;
+
 import servers.jms.AbstractProducerConsumer;
 
 /**
@@ -44,7 +46,7 @@ public class RCAddTransformer extends AbstractProducerConsumer {
 	}
 
 	@Override
-	public void onMessage(Message message) {
+	public void processMessage(Session session, Message message) {
 		// TODO Auto-generated method stub
 		
 	}

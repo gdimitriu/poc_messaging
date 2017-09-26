@@ -19,11 +19,13 @@
  */
 package servers.jms;
 
+import java.util.ArrayList;
+import java.util.List;
+
 import javax.jms.Connection;
 import javax.jms.ConnectionFactory;
 import javax.jms.JMSException;
 import javax.jms.MessageConsumer;
-import javax.jms.MessageProducer;
 import javax.jms.Queue;
 import javax.jms.Session;
 
@@ -40,16 +42,19 @@ public class ConsumerHolder {
 	
 	private EmbeddedJMS jmsServer = null;
 	
-	private IResourceProducerConsumer resource = null;
+	private IJMSRuntimeResource resource = null;
 		
 	/** connection used internally */
 	private Connection connection = null;
 
 	private ConnectionFactory cf = null;
 	
-	public ConsumerHolder(final EmbeddedJMS server, final IResourceProducerConsumer resource) {
+	private List<Session> sessions = null;
+	
+	public ConsumerHolder(final EmbeddedJMS server, final IJMSRuntimeResource resource) {
 		jmsServer = server;
 		this.resource = resource;
+		sessions = new ArrayList<Session>();
 	}
 
 	/**
@@ -63,19 +68,22 @@ public class ConsumerHolder {
 			UserPassword credentials = CredentialForRCPProvider.getInstance().getCredentials(resource);
 			connection = cf.createConnection(credentials.getUser(), credentials.getPasswd());
 
-			Session session = connection.createSession(true, Session.AUTO_ACKNOWLEDGE);
-
-			Queue queue = (Queue) jmsServer.lookup("queue/" + resource.getQueueName());
-
-			MessageConsumer consumer = session.createConsumer(queue);
-			
-			MessageProducer replyTo = session.createProducer(null);
-			
-			resource.setReplyTo(session, replyTo);
-			
 			resource.setCurrentConnection(connection);
-			
-			consumer.setMessageListener(resource);
+
+			if (resource.getMaxConcurentInstances() > 1) {
+				for (int i = 0; i < resource.getMaxConcurentInstances(); i++) {
+					Session session = connection.createSession(true, Session.AUTO_ACKNOWLEDGE);
+					sessions.add(session);
+					Queue queue = (Queue) jmsServer.lookup("queue/" + resource.getQueueName());
+					new Thread(new JMSProducerConsumerSessionAware(session, resource, queue)).start();
+				}
+			} else {
+				Session session = connection.createSession(true, Session.AUTO_ACKNOWLEDGE);
+				sessions.add(session);
+				Queue queue = (Queue) jmsServer.lookup("queue/" + resource.getQueueName());
+				MessageConsumer consumer = session.createConsumer(queue);
+				consumer.setMessageListener(new JMSConsumer(resource));
+			}
 
 			connection.start();
 			
@@ -88,10 +96,19 @@ public class ConsumerHolder {
 	 * stop the consumer.
 	 */
 	public void stop() {
+		sessions.stream().forEach(ses -> closeSession(ses));
 		try {
 			if (connection != null) {
 				connection.close();
 			}
+		} catch (JMSException e) {
+			e.printStackTrace();
+		}
+	}
+	
+	public void closeSession(Session session) {
+		try {
+			session.close();
 		} catch (JMSException e) {
 			e.printStackTrace();
 		}

@@ -24,6 +24,7 @@ import javax.jms.Destination;
 import javax.jms.JMSException;
 import javax.jms.Message;
 import javax.jms.MessageProducer;
+import javax.jms.Session;
 import javax.jms.StreamMessage;
 import servers.jms.AbstractProducerConsumer;
 
@@ -49,25 +50,25 @@ public class RCAuthentication extends AbstractProducerConsumer {
 	}
 
 	@Override
-	public void onMessage(Message message) {
+	public void processMessage(Session session, Message message) {
 		if (message instanceof StreamMessage) {
 			StreamMessage strMsg = (StreamMessage) message;
 			try {
 				System.out.println(strMsg.readString());
 				System.out.println(strMsg.readString());
-				StreamMessage retMsg = getSession().createStreamMessage();
+				StreamMessage retMsg = session.createStreamMessage();
 				retMsg.setJMSCorrelationID(message.getJMSCorrelationID());
 				Destination replyTo = null;
 				if (message.getJMSReplyTo() != null) {
 					replyTo = message.getJMSReplyTo();
 				} else {
-					replyTo = getSession().createQueue(IQueueNameConstants.TRANSACTION_RETURN);
+					replyTo = session.createQueue(IQueueNameConstants.TRANSACTION_RETURN);
 				}
-				MessageProducer producer = getSession().createProducer(replyTo);
+				MessageProducer producer = session.createProducer(replyTo);
 				retMsg.writeString("no authorization");
 				producer.setDeliveryMode(DeliveryMode.PERSISTENT);
 				producer.send(retMsg);
-				getSession().commit();
+				session.commit();
 			} catch (JMSException e) {
 				// TODO Auto-generated catch block
 				e.printStackTrace();

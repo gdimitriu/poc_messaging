@@ -20,18 +20,12 @@
 package servers.jms;
 
 import javax.jms.Connection;
-import javax.jms.MessageProducer;
-import javax.jms.Session;
 
 /**
  * @author Gabriel Dimitriu
  *
  */
-public abstract class AbstractProducerConsumer implements IResourceProducerConsumer {
-	
-	private Session currentSession = null;
-	
-	private MessageProducer replyTo = null;
+public abstract class AbstractProducerConsumer implements IJMSRuntimeResource {
 	
 	private Connection currentConnection = null;
 	
@@ -43,31 +37,6 @@ public abstract class AbstractProducerConsumer implements IResourceProducerConsu
 		return this.getClass().getSimpleName();
 	}
 	
-	/* (non-Javadoc)
-	 * @see servers.jms.IResourceProducerConsumer#getSession()
-	 */
-	@Override
-	public Session getSession() {
-		return currentSession;
-	}
-
-	/* (non-Javadoc)
-	 * @see servers.jms.IResourceProducerConsumer#getReplyTo()
-	 */
-	@Override
-	public MessageProducer getReplyTo() {
-		return replyTo;
-	}
-
-	/* (non-Javadoc)
-	 * @see servers.jms.IResourceProducerConsumer#setReplyTo(javax.jms.Session, javax.jms.MessageProducer)
-	 */
-	@Override
-	public void setReplyTo(final Session session, final MessageProducer replyTo) {
-		currentSession = session;
-		this.replyTo = replyTo;
-	}
-
 	public Connection getCurrentConnection() {
 		return currentConnection;
 	}

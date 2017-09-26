@@ -19,44 +19,30 @@
  */
 package servers.jms;
 
-import javax.jms.Connection;
+import javax.jms.Message;
 import javax.jms.MessageListener;
-import javax.jms.MessageProducer;
-import javax.jms.Session;
 
 /**
  * @author Gabriel Dimitriu
  *
  */
-public interface IResourceProducerConsumer extends MessageListener {
+public class JMSConsumer implements MessageListener {
 
+	private IJMSRuntimeResource resource = null;
 	/**
-	 * @return queue name associated with this consumer.
+	 * @param resource 
+	 * 
 	 */
-	public String getQueueName();
-	
-	
-	/**
-	 * @return factory name as string
-	 */
-	public String getFactoryName();
-	
-	
-	public Session getSession();
-	
-	/**
-	 * @return the producer which has to reply.
-	 */
-	public MessageProducer getReplyTo();
-	
-	
-	/**
-	 * @param session the session in which he has to reply.
-	 * @param replyTo the producer which has to be reply.
-	 */
-	public void setReplyTo(final Session session, final MessageProducer replyTo);
-	
-	public Connection getCurrentConnection();
+	public JMSConsumer(IJMSRuntimeResource resource) {
+		this.resource = resource;
+	}
 
-	public void setCurrentConnection(Connection currentConnection);
+	/* (non-Javadoc)
+	 * @see javax.jms.MessageListener#onMessage(javax.jms.Message)
+	 */
+	@Override
+	public void onMessage(Message message) {
+		resource.processMessage(null, message);
+	}
+
 }

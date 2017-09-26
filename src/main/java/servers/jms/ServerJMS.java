@@ -85,7 +85,7 @@ public class ServerJMS implements IServiceJMS {
 	private boolean serverPersistenceEnabled = true;
 	
 	/** map of consumers and queues */
-	private Map<String, IResourceProducerConsumer> registeredConsumers = null;
+	private Map<String, IJMSRuntimeResource> registeredConsumers = null;
 	
 	/** map of runtime consumers */
 	private Map<String, ConsumerHolder> runtimeConsumers = null;
@@ -93,13 +93,13 @@ public class ServerJMS implements IServiceJMS {
 	public ServerJMS(final int port) {
 		serverPort = port;
 		queuesNames = new HashSet<String>();
-		registeredConsumers = new HashMap<String, IResourceProducerConsumer>();
+		registeredConsumers = new HashMap<String, IJMSRuntimeResource>();
 		runtimeConsumers = new HashMap<String, ConsumerHolder>();
 	}
 	
 	public ServerJMS() {
 		queuesNames = new HashSet<String>();
-		registeredConsumers = new HashMap<String, IResourceProducerConsumer>();
+		registeredConsumers = new HashMap<String, IJMSRuntimeResource>();
 		runtimeConsumers = new HashMap<String, ConsumerHolder>();
 	}
 	
@@ -169,7 +169,7 @@ public class ServerJMS implements IServiceJMS {
 	    runtimeConsumers.entrySet().stream().forEach(runtimeConsumer -> runtimeConsumer.getValue().start());
 	}
 	
-	private void registerSpecificFactory(final IResourceProducerConsumer consumer) {
+	private void registerSpecificFactory(final IJMSRuntimeResource consumer) {
 		if (consumer.getFactoryName() == null || consumer.getFactoryName().equals(connectionDefaultFactoryName)) {
 			return;
 		}
@@ -285,7 +285,7 @@ public class ServerJMS implements IServiceJMS {
 	}
 
 	@Override
-	public String registerResourceConsumer(final IResourceProducerConsumer consumer) {
+	public String registerResourceConsumer(final IJMSRuntimeResource consumer) {
 		if (!queuesNames.contains(consumer.getQueueName())) {
 			return null;
 		}
@@ -295,7 +295,7 @@ public class ServerJMS implements IServiceJMS {
 	}
 
 	@Override
-	public IResourceProducerConsumer getRegisterResourceConsumer(final String registeredkey) {
+	public IJMSRuntimeResource getRegisterResourceConsumer(final String registeredkey) {
 		if (registeredConsumers.containsKey(registeredkey)) {
 			registeredConsumers.get(registeredkey);
 		}

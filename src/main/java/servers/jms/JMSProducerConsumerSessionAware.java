@@ -17,37 +17,44 @@
     You should have received a copy of the GNU General Public License
     along with poc_messaging.  If not, see <http://www.gnu.org/licenses/>.
  */
-package servers.jms.queues;
+package servers.jms;
 
+import javax.jms.JMSException;
 import javax.jms.Message;
+import javax.jms.MessageConsumer;
+import javax.jms.MessageListener;
+import javax.jms.Queue;
 import javax.jms.Session;
-
-import servers.jms.AbstractProducerConsumer;
 
 /**
  * @author Gabriel Dimitriu
  *
  */
-public class RCFlow extends AbstractProducerConsumer {
+public class JMSProducerConsumerSessionAware implements MessageListener, Runnable{
 
-	/**
-	 * 
-	 */
-	public RCFlow() {
-		// TODO Auto-generated constructor stub
+	private IJMSRuntimeResource resource = null;
+	private Session currentSession = null;
+	private Queue queue = null;
+	
+	public JMSProducerConsumerSessionAware(Session session, IJMSRuntimeResource res, Queue queue) {
+		currentSession = session;
+		resource = res;
+		this.queue  = queue;
 	}
-
-	/* (non-Javadoc)
-	 * @see servers.jms.IResourceProducerConsumer#getQueueName()
-	 */
 	@Override
-	public String getQueueName() {
-		return IQueueNameConstants.TRANSFORM;
+	public void onMessage(Message message) {
+		resource.processMessage(currentSession, message);
 	}
-
+	
 	@Override
-	public void processMessage(Session session, Message message) {
-		// TODO Auto-generated method stub
+	public void run() {		
+		try {
+			MessageConsumer consumer = currentSession.createConsumer(queue);
+			consumer.setMessageListener(this);
+		} catch (JMSException e) {
+			e.printStackTrace();
+		}
 		
 	}
+
 }

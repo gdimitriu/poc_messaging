@@ -17,37 +17,43 @@
     You should have received a copy of the GNU General Public License
     along with poc_messaging.  If not, see <http://www.gnu.org/licenses/>.
  */
-package servers.jms.queues;
+package servers.jms;
 
+import javax.jms.Connection;
 import javax.jms.Message;
 import javax.jms.Session;
-
-import servers.jms.AbstractProducerConsumer;
 
 /**
  * @author Gabriel Dimitriu
  *
  */
-public class RCFlow extends AbstractProducerConsumer {
+public interface IJMSRuntimeResource {
 
 	/**
-	 * 
+	 * @return queue name associated with this consumer.
 	 */
-	public RCFlow() {
-		// TODO Auto-generated constructor stub
-	}
-
-	/* (non-Javadoc)
-	 * @see servers.jms.IResourceProducerConsumer#getQueueName()
+	public String getQueueName();	
+	
+	/**
+	 * @return factory name as string
 	 */
-	@Override
-	public String getQueueName() {
-		return IQueueNameConstants.TRANSFORM;
-	}
+	public String getFactoryName();
+	
+	public Connection getCurrentConnection();
 
-	@Override
-	public void processMessage(Session session, Message message) {
-		// TODO Auto-generated method stub
-		
+	public void setCurrentConnection(final Connection currentConnection);
+	
+	/**
+	 * get the maximum number of instances allowed.
+	 * @return nr of number of instances allowed (-1) for infinite
+	 */
+	default public int getMaxConcurentInstances() {
+		return 10;
 	}
+	
+	/**
+	 * @param session the session in which the message was received
+	 * @param message the received message
+	 */
+	public void processMessage(final Session session, final Message message);
 }
