@@ -21,16 +21,12 @@ package servers.jms.queues.client;
 
 import javax.jms.Connection;
 import javax.jms.ConnectionFactory;
-import javax.jms.Destination;
 import javax.jms.JMSException;
 import javax.jms.Message;
 import javax.jms.MessageConsumer;
 import javax.jms.Queue;
 import javax.jms.Session;
 import javax.jms.StreamMessage;
-import javax.jms.Topic;
-import javax.jms.TopicSubscriber;
-
 import org.apache.activemq.artemis.api.jms.ActiveMQJMSClient;
 
 import servers.jms.queues.IQueueNameConstants;
