@@ -19,14 +19,17 @@
  */
 package servers.jms.queues;
 
+import java.util.HashMap;
 import javax.jms.DeliveryMode;
 import javax.jms.Destination;
 import javax.jms.JMSException;
 import javax.jms.Message;
 import javax.jms.MessageProducer;
+import javax.jms.ObjectMessage;
 import javax.jms.Session;
 import javax.jms.StreamMessage;
 import servers.jms.AbstractProducerConsumer;
+import servers.jms.protocol.cookies.CookieTransactionsToken;
 
 /**
  * @author Gabriel Dimitriu
@@ -54,9 +57,10 @@ public class RCAuthentication extends AbstractProducerConsumer {
 		if (message instanceof StreamMessage) {
 			StreamMessage strMsg = (StreamMessage) message;
 			try {
+				String userName = strMsg.readString();
+				System.out.println(userName);
 				System.out.println(strMsg.readString());
-				System.out.println(strMsg.readString());
-				StreamMessage retMsg = session.createStreamMessage();
+				ObjectMessage retMsg = session.createObjectMessage();
 				retMsg.setJMSCorrelationID(message.getJMSCorrelationID());
 				Destination replyTo = null;
 				if (message.getJMSReplyTo() != null) {
@@ -65,7 +69,13 @@ public class RCAuthentication extends AbstractProducerConsumer {
 					replyTo = session.createQueue(IQueueNameConstants.TRANSACTION_RETURN);
 				}
 				MessageProducer producer = session.createProducer(replyTo);
-				retMsg.writeString("no authorization");
+				CookieTransactionsToken cookie = new CookieTransactionsToken();
+				cookie.setTransactionId(message.getJMSMessageID());
+				cookie.setUserName(userName);
+				HashMap<String, Object> map = new HashMap<String, Object>();
+				map.put("message", "authenticate");
+				map.put("cookie", cookie);
+				retMsg.setObject(map);
 				producer.setDeliveryMode(DeliveryMode.PERSISTENT);
 				producer.send(retMsg);
 				session.commit();

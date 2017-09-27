@@ -19,6 +19,8 @@
  */
 package servers.jms.queues.client;
 
+import java.util.HashMap;
+
 import javax.jms.Connection;
 import javax.jms.ConnectionFactory;
 import javax.jms.Destination;
@@ -26,12 +28,14 @@ import javax.jms.JMSException;
 import javax.jms.Message;
 import javax.jms.MessageConsumer;
 import javax.jms.MessageProducer;
+import javax.jms.ObjectMessage;
 import javax.jms.Session;
 import javax.jms.StreamMessage;
 
 import org.apache.activemq.artemis.api.jms.ActiveMQJMSClient;
 
 import servers.jms.protocol.ICommands;
+import servers.jms.protocol.cookies.CookieTransactionsToken;
 import servers.jms.queues.IQueueNameConstants;
 
 /**
@@ -95,9 +99,13 @@ public class BasicProducer {
 		
 		Message receivedMessage = consumer.receive();
 		
-		if (receivedMessage instanceof StreamMessage) {
-			System.out.println("received:" + ((StreamMessage) receivedMessage).readString());
-			System.out.println("send " + messageID + " messageId" + receivedMessage.getJMSMessageID() + " message correlation " + receivedMessage.getJMSCorrelationID());
+		if (receivedMessage instanceof ObjectMessage) {
+			@SuppressWarnings("unchecked")
+			HashMap<String, Object> retObj = (HashMap<String, Object>) ((ObjectMessage) receivedMessage).getObject();
+			System.out.println("received:" + retObj.get("message")); 
+			System.out.println("received " + receivedMessage.getJMSMessageID() + " message correlation " + receivedMessage.getJMSCorrelationID());
+			CookieTransactionsToken cookie = (CookieTransactionsToken) retObj.get("cookie");
+			System.out.println("cookie token: " + cookie.getTransactionId());
 		}
 		
 		session.close();
