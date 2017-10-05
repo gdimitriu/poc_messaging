@@ -29,7 +29,6 @@ import javax.jms.MessageConsumer;
 import javax.jms.ObjectMessage;
 import javax.jms.Queue;
 import javax.jms.Session;
-import javax.jms.StreamMessage;
 import org.apache.activemq.artemis.api.jms.ActiveMQJMSClient;
 
 import servers.jms.protocol.cookies.CookieTransactionsToken;
