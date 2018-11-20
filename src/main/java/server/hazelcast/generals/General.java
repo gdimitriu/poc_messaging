@@ -20,6 +20,7 @@ public class General implements Serializable, Comparable<General> {
 	private String secondName;
 	private String id;
 	private int deathYear;
+	private int score = 0;
 	
 	/**
 	 * 
@@ -28,10 +29,16 @@ public class General implements Serializable, Comparable<General> {
 		// TODO Auto-generated constructor stub
 	}
 
-	public General(final String firstName, final String secondName, final String id) {
+	public General(final String firstName, final String secondName, final String id, final int points) {
 		this.firstName = firstName;
 		this.secondName = secondName;
 		this.id = id;
+		this.score = points;
+	}
+	
+	public General(final String firstName, final String secondName, final String id, final int deathyear, final int points) {
+		this(firstName, secondName, id, points);
+		this.deathYear= deathyear;
 	}
 
 	public General(final String id) {
@@ -82,5 +89,9 @@ public class General implements Serializable, Comparable<General> {
 	@Override
 	public int compareTo(General o) {
 		return Integer.compare(deathYear, o.getDeathYear());
+	}
+	
+	public int getScore() {
+		return this.score;
 	}
 }
