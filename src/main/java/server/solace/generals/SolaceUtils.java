@@ -5,6 +5,10 @@ package server.solace.generals;
 
 import javax.jms.Connection;
 
+import com.solacesystems.jcsmp.InvalidPropertiesException;
+import com.solacesystems.jcsmp.JCSMPFactory;
+import com.solacesystems.jcsmp.JCSMPProperties;
+import com.solacesystems.jcsmp.JCSMPSession;
 import com.solacesystems.jms.SolConnectionFactory;
 import com.solacesystems.jms.SolJmsUtility;
 
@@ -65,5 +69,14 @@ public class SolaceUtils {
 		cf.setHost(host);
 		cf.setPort(port);
 		return cf.createConnection();
+	}
+	
+	public static JCSMPSession createJMSPSession() throws InvalidPropertiesException {
+		final JCSMPProperties properties = new JCSMPProperties();
+        properties.setProperty(JCSMPProperties.HOST, host + ":" + port);     // host:port
+        properties.setProperty(JCSMPProperties.USERNAME, username); // client-username
+        properties.setProperty(JCSMPProperties.VPN_NAME,  vpn); // message-vpn
+        properties.setProperty(JCSMPProperties.PASSWORD, password); // client-password
+		return JCSMPFactory.onlyInstance().createSession(properties);
 	}
 }

@@ -104,5 +104,10 @@
 			<artifactId>sol-jms</artifactId>
 			<version>[10,)</version>
 		</dependency>
+		<dependency>
+			<groupId>com.solacesystems</groupId>
+			<artifactId>sol-jcsmp</artifactId>
+			<version>[10,)</version>
+		</dependency>
 	</dependencies>
 </project>
