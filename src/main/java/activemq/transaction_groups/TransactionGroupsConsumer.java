@@ -48,10 +48,11 @@ public class TransactionGroupsConsumer {
 			connection = cf.createConnection("user", "password");
 			connection.start();
 			int i = 0;
+			session = connection.createSession(true, Session.SESSION_TRANSACTED);
+			destination = session.createQueue(IConstants.TRANSACTIONAL_QUEUE);
+			consumer = session.createConsumer(destination);	
 			while(true) {
-				session = connection.createSession(true, Session.AUTO_ACKNOWLEDGE);
-				destination = session.createQueue(IConstants.TRANSACTIONAL_QUEUE);
-				consumer = session.createConsumer(destination);				
+							
 				Message message = consumer.receive();
 				String text = null;
 				if (message instanceof TextMessage) {
@@ -65,7 +66,7 @@ public class TransactionGroupsConsumer {
 					session.commit();
 				}
 				i++;
-				session.close();
+//				session.close();
 			}
 		} catch (Exception e1) {			
 			e1.printStackTrace();

@@ -66,9 +66,6 @@ public class TransactionGroupsServer {
 		JMSQueueConfiguration queueConfiguration = new JMSQueueConfigurationImpl()
 					.setName(IConstants.TRANSACTIONAL_QUEUE).setDurable(false).setBindings("queue/" + IConstants.TRANSACTIONAL_QUEUE);
 		jmsConfiguration.getQueueConfigurations().add(queueConfiguration);
-		queueConfiguration = new JMSQueueConfigurationImpl()
-					.setName(IConstants.GROUP_QUEUE).setDurable(false).setBindings("queue/" + IConstants.GROUP_QUEUE);
-		
 		//Step 5: Start the JMS Server using ActiveMQ Artemis core server with JMS configuration
 		jmsServer = new EmbeddedJMS().setConfiguration(configuration).setJmsConfiguration(jmsConfiguration);
 		jmsServer.setSecurityManager(new MySecurityManager());
@@ -86,7 +83,6 @@ public class TransactionGroupsServer {
 		role = new Role("system", true, true, true, true, true, true, true, true, true, true);
 		userRole.add(role);
 		roles.put(activemq.transaction_groups.IConstants.TRANSACTIONAL_QUEUE, userRole);
-		roles.put(activemq.transaction_groups.IConstants.GROUP_QUEUE, userRole);
 		roles.put("*", userRole);
 		return roles;
 	}
