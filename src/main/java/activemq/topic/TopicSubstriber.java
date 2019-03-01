@@ -1,7 +1,7 @@
 /**
  * 
  */
-package activemq.transaction_groups;
+package activemq.topic;
 
 import javax.jms.Connection;
 import javax.jms.ConnectionFactory;
@@ -14,32 +14,31 @@ import javax.jms.TextMessage;
 
 import org.apache.activemq.artemis.api.jms.ActiveMQJMSClient;
 
-
 /**
  * @author Gabriel Dimitriu
  *
  */
-public class TransactionGroupsConsumer {
-
+public class TopicSubstriber {
+	
 	private ConnectionFactory cf = null;
 	private Connection connection = null;
 
 	private Session session = null;
 	private MessageConsumer consumer = null;
-	
+
 	/**
 	 * 
 	 */
-	public TransactionGroupsConsumer() {
-		
+	public TopicSubstriber() {
+		// TODO Auto-generated constructor stub
 	}
-	
+
 	/**
 	 * @param args
 	 */
 	public static void main(String[] args) {
-		TransactionGroupsConsumer consumer = new TransactionGroupsConsumer();
-		consumer.startConsumerServer();
+		new TopicSubstriber().startConsumerServer();
+
 	}
 	
 	public void startConsumerServer() {
@@ -48,9 +47,8 @@ public class TransactionGroupsConsumer {
 			cf = ActiveMQJMSClient.createConnectionFactory(IConstants.TCP_LOCALHOST, "connector");
 			connection = cf.createConnection("user", "password");
 			connection.start();
-			int i = 0;
 			session = connection.createSession(true, Session.SESSION_TRANSACTED);
-			destination = session.createQueue(IConstants.TRANSACTIONAL_QUEUE);
+			destination = session.createTopic(IConstants.TOPIC_QUEUE);
 			consumer = session.createConsumer(destination);	
 			while(true) {
 							
@@ -60,26 +58,15 @@ public class TransactionGroupsConsumer {
 					text = ((TextMessage) message).getText();
 					System.out.println(text);
 				}
-				if (i%3 == 0) {
-					System.out.println("rollback " + text);
-					session.rollback();
-				} else {
-					session.commit();
-				}
-				i++;
 			}
-		} catch (Exception e1) {
+		} catch (Exception e1) {			
 			e1.printStackTrace();
-			try {
-				consumer.close();
-			} catch (JMSException e2) {
-				e2.printStackTrace();
-			}
 			try {
 				if (session != null) {
 					session.close();
 				}
 			} catch (JMSException e) {
+				// TODO Auto-generated catch block
 				e.printStackTrace();
 			}
 			try {
@@ -93,4 +80,5 @@ public class TransactionGroupsConsumer {
 			return;
 		}
 	}
+
 }

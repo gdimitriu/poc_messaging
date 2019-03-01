@@ -1,11 +1,10 @@
 /**
  * 
  */
-package activemq.transaction_groups;
+package activemq.topic;
 
 import javax.jms.Connection;
 import javax.jms.ConnectionFactory;
-import javax.jms.Destination;
 import javax.jms.JMSException;
 import javax.jms.Message;
 import javax.jms.MessageConsumer;
@@ -14,13 +13,14 @@ import javax.jms.TextMessage;
 
 import org.apache.activemq.artemis.api.jms.ActiveMQJMSClient;
 
-
 /**
  * @author Gabriel Dimitriu
  *
  */
-public class TransactionGroupsConsumer {
+public class TopicDurableSuscriber {
 
+	private static final String UNSUSCRIBE = "unsuscribe";
+	private static final String DURABLE = "durable";
 	private ConnectionFactory cf = null;
 	private Connection connection = null;
 
@@ -30,50 +30,54 @@ public class TransactionGroupsConsumer {
 	/**
 	 * 
 	 */
-	public TransactionGroupsConsumer() {
+	public TopicDurableSuscriber() {
 		
 	}
-	
+
 	/**
 	 * @param args
 	 */
 	public static void main(String[] args) {
-		TransactionGroupsConsumer consumer = new TransactionGroupsConsumer();
-		consumer.startConsumerServer();
+		if (args.length == 0) {
+			new TopicDurableSuscriber().startConsumerServer(UNSUSCRIBE, "0");
+		} else if (args.length == 2){
+			new TopicDurableSuscriber().startConsumerServer(args[0], args[1]);
+		} else if (args.length == 1) {
+			new TopicDurableSuscriber().startConsumerServer(UNSUSCRIBE, args[0]);
+		}
 	}
-	
-	public void startConsumerServer() {
-		Destination destination = null;		
+	public void startConsumerServer(final String command, final String id) {
 		try {
 			cf = ActiveMQJMSClient.createConnectionFactory(IConstants.TCP_LOCALHOST, "connector");
 			connection = cf.createConnection("user", "password");
-			connection.start();
-			int i = 0;
-			session = connection.createSession(true, Session.SESSION_TRANSACTED);
-			destination = session.createQueue(IConstants.TRANSACTIONAL_QUEUE);
-			consumer = session.createConsumer(destination);	
-			while(true) {
-							
+			connection.setClientID(DURABLE + id);
+			connection.start();			
+			session = connection.createSession(false, Session.AUTO_ACKNOWLEDGE);
+			consumer = session.createDurableSubscriber(session.createTopic(IConstants.TOPIC_QUEUE),DURABLE);
+			for (int i = 0 ; i < 20; i++){
 				Message message = consumer.receive();
 				String text = null;
 				if (message instanceof TextMessage) {
 					text = ((TextMessage) message).getText();
 					System.out.println(text);
 				}
-				if (i%3 == 0) {
-					System.out.println("rollback " + text);
-					session.rollback();
-				} else {
-					session.commit();
-				}
-				i++;
 			}
-		} catch (Exception e1) {
-			e1.printStackTrace();
+		} catch (Exception e) {
+			e.printStackTrace();
+		} finally {
 			try {
-				consumer.close();
+				if (consumer != null) {
+					consumer.close();
+				}
 			} catch (JMSException e2) {
 				e2.printStackTrace();
+			}
+			if (UNSUSCRIBE.equals(command)) {
+				try {
+					session.unsubscribe(DURABLE);
+				} catch (JMSException e2) {
+					e2.printStackTrace();
+				}
 			}
 			try {
 				if (session != null) {
@@ -87,10 +91,8 @@ public class TransactionGroupsConsumer {
 					connection.stop();
 				}
 			} catch (JMSException e) {
-				// TODO Auto-generated catch block
 				e.printStackTrace();
 			}
-			return;
 		}
 	}
 }
