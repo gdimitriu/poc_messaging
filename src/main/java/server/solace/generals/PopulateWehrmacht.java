@@ -1,6 +1,23 @@
 /**
- * 
+    Copyright (c) 2019 Gabriel Dimitriu All rights reserved.
+	DO NOT ALTER OR REMOVE COPYRIGHT NOTICES OR THIS FILE HEADER.
+
+    This file is part of poc_messaging project.
+
+    poc_messaging is free software: you can redistribute it and/or modify
+    it under the terms of the GNU General Public License as published by
+    the Free Software Foundation, either version 3 of the License, or
+    (at your option) any later version.
+
+    poc_messaging is distributed in the hope that it will be useful,
+    but WITHOUT ANY WARRANTY; without even the implied warranty of
+    MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+    GNU General Public License for more details.
+
+    You should have received a copy of the GNU General Public License
+    along with poc_messaging.  If not, see <http://www.gnu.org/licenses/>.
  */
+
 package server.solace.generals;
 
 import java.net.URISyntaxException;
@@ -23,7 +40,7 @@ import server.hazelcast.generals.General;
  * @author Gabriel Dimitriu
  *
  */
-public class PopulateWhermacht {
+public class PopulateWehrmacht {
 	//list of generals
 	private List<General> generals = new ArrayList<>(); 
 
@@ -32,7 +49,7 @@ public class PopulateWhermacht {
 	 * @throws URISyntaxException 
 	 * 
 	 */
-	public PopulateWhermacht() throws URISyntaxException, Exception {
+	public PopulateWehrmacht() throws URISyntaxException, Exception {
 		Random random = new Random();
 		generals.add(new General("Erwing", "Rommel", "1", 1944, random.nextInt()));
 		generals.add(new General("Gerd", "Rundstedt", "2", 1953, random.nextInt()));
@@ -59,7 +76,7 @@ public class PopulateWhermacht {
 		SolaceUtils.setPassword(args[3]);
 		SolaceUtils.setVpn(args[4]);
 		try {
-			new PopulateWhermacht();
+			new PopulateWehrmacht();
 		} catch (URISyntaxException e) {
 			// TODO Auto-generated catch block
 			e.printStackTrace();
