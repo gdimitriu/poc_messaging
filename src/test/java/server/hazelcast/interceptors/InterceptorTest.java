@@ -4,12 +4,12 @@ import static org.junit.Assert.assertEquals;
 
 import java.io.Serializable;
 
+import com.hazelcast.map.IMap;
 import org.junit.Test;
 
 import com.hazelcast.config.Config;
 import com.hazelcast.core.Hazelcast;
 import com.hazelcast.core.HazelcastInstance;
-import com.hazelcast.core.IMap;
 import com.hazelcast.map.MapInterceptor;
 
 public class InterceptorTest {

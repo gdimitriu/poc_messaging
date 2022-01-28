@@ -27,16 +27,16 @@ import java.util.Random;
 import java.util.Set;
 import java.util.concurrent.ConcurrentMap;
 
-import com.hazelcast.core.IMap;
-import com.hazelcast.core.ITopic;
-import com.hazelcast.core.Message;
-import com.hazelcast.core.MessageListener;
 import com.hazelcast.config.Config;
 import com.hazelcast.core.Hazelcast;
 import com.hazelcast.core.HazelcastInstance;
-import com.hazelcast.query.EntryObject;
+import com.hazelcast.map.IMap;
 import com.hazelcast.query.Predicate;
 import com.hazelcast.query.PredicateBuilder;
+import com.hazelcast.query.Predicates;
+import com.hazelcast.topic.ITopic;
+import com.hazelcast.topic.Message;
+import com.hazelcast.topic.MessageListener;
 
 /**
  * @author Gabriel Dimitriu
@@ -72,10 +72,6 @@ public class GeneralsServer implements MessageListener<BattleEvent> {
 		mapGenerals.values().stream().sorted().forEach(a -> queueGenerals.offer(a));		
 	}
 
-	/**
-	 * @param mapGenerals
-	 * @param server
-	 */
 	private void updateWehrmachtMap() {
 		Map<String, General> mapWehrmachtGenerals = hazelcastInstance.getMap(WEHRMACHT + GENERALS);
 		Collection<General> generals = mapWehrmachtGenerals.values();
@@ -116,7 +112,7 @@ public class GeneralsServer implements MessageListener<BattleEvent> {
 	}
 	
 	public void start() {
-		serverOrder = hazelcastInstance.getAtomicLong("cluster").addAndGet(1);
+		serverOrder = hazelcastInstance.getCluster().getMembers().size();
 		System.out.println("Server Order in cluster:" + serverOrder);
 		if (hazelcastInstance.getCluster().getMembers().size() == 3 && serverOrder == hazelcastInstance.getCluster().getMembers().size()) {
 			commandTopic.publish(new BattleEvent("start"));
@@ -152,7 +148,7 @@ public class GeneralsServer implements MessageListener<BattleEvent> {
 	}
 
 	@Override
-	public void onMessage(Message<BattleEvent> message) {	
+	public void onMessage(Message<BattleEvent> message) {
 		BattleEvent event = message.getMessageObject();
 		System.out.println("ServerOrder=" + serverOrder + ":" + event.getEvent() + ":" + message.getPublishingMember() + ":" + event);
 		if (serverOrder == 1 && "start".equals(event.getEvent())) {
@@ -175,7 +171,7 @@ public class GeneralsServer implements MessageListener<BattleEvent> {
 			System.out.println(BATTLE + " Generals:");
 			Map<String, General> mapWehrmachtGenerals = hazelcastInstance.getMap(WEHRMACHT + GENERALS);
 			mapWehrmachtGenerals.values().stream().forEach(a -> System.out.println(a));
-			EntryObject entry = new PredicateBuilder().getEntryObject();
+			PredicateBuilder.EntryObject entry = Predicates.newPredicateBuilder().getEntryObject();
 			Predicate predicate = entry.get("deathYear").greaterThan(1945);
 			Set<General> surviving = (Set<General>) ((IMap) mapWehrmachtGenerals).values(predicate);
 			System.out.println("Surviving generals:");

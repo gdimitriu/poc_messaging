@@ -1,16 +1,12 @@
 package server.hazelcast.sessions;
 
+import com.hazelcast.collection.IQueue;
+import com.hazelcast.collection.ISet;
 import com.hazelcast.config.Config;
 import com.hazelcast.core.Hazelcast;
 import com.hazelcast.core.HazelcastInstance;
-import com.hazelcast.core.IMap;
-import com.hazelcast.core.IQueue;
-import com.hazelcast.core.ISet;
-import com.hazelcast.core.TransactionalMap;
-import com.hazelcast.core.TransactionalQueue;
-import com.hazelcast.core.TransactionalSet;
-import com.hazelcast.transaction.TransactionContext;
-import com.hazelcast.transaction.TransactionOptions;
+import com.hazelcast.map.IMap;
+import com.hazelcast.transaction.*;
 import com.hazelcast.transaction.TransactionOptions.TransactionType;
 
 public class SessionExamples {

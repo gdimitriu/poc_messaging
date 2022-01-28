@@ -3,17 +3,17 @@
  */
 package server.hazelcast.gettingstarted;
 
+import com.hazelcast.collection.IQueue;
+import com.hazelcast.collection.ISet;
+import com.hazelcast.collection.ItemEvent;
+import com.hazelcast.collection.ItemListener;
 import com.hazelcast.config.Config;
 import com.hazelcast.core.EntryEvent;
 import com.hazelcast.core.EntryListener;
 import com.hazelcast.core.Hazelcast;
 import com.hazelcast.core.HazelcastInstance;
-import com.hazelcast.core.IMap;
-import com.hazelcast.core.IQueue;
-import com.hazelcast.core.ISet;
-import com.hazelcast.core.ItemEvent;
-import com.hazelcast.core.ItemListener;
-import com.hazelcast.core.MapEvent;
+import com.hazelcast.map.IMap;
+import com.hazelcast.map.MapEvent;
 
 /**
  * @author Gabriel Dimitriu
@@ -26,8 +26,8 @@ public class SampleEvent implements ItemListener, EntryListener {
         Config cfg = new Config();
         HazelcastInstance hz = Hazelcast.newHazelcastInstance(cfg);
         IQueue queue = hz.getQueue ("default");
-        IMap   map   = hz.getMap   ("default");
-        ISet   set   = hz.getSet   ("default");
+        IMap map   = hz.getMap   ("default");
+        ISet set   = hz.getSet   ("default");
         //listen for all added/updated/removed entries
         queue.addItemListener(sample, true);
         set.addItemListener  (sample, true); 
@@ -84,4 +84,9 @@ public class SampleEvent implements ItemListener, EntryListener {
 		// TODO Auto-generated method stub
 		
 	}
+
+    @Override
+    public void entryExpired(EntryEvent entryEvent) {
+
+    }
 }
