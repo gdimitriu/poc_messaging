@@ -1,12 +1,9 @@
 package from_jms_activemq.b2bi;
 
-import javax.jms.JMSException;
 import javax.jms.XATopicConnectionFactory;
+import javax.naming.Context;
 import javax.naming.InitialContext;
 import javax.naming.NamingException;
-import javax.transaction.NotSupportedException;
-import javax.transaction.SystemException;
-import javax.transaction.TransactionManager;
 import java.util.Properties;
 
 public class ValidateJNDIArtemisTransactionManager {
@@ -15,6 +12,8 @@ public class ValidateJNDIArtemisTransactionManager {
             Properties env = new Properties();
             env.put("java.naming.factory.initial", "org.apache.activemq.artemis.jndi.ActiveMQInitialContextFactory");
             env.put("java.naming.provider.url", "tcp://ubuntu:61616?type=TOPIC_XA_CF");
+            env.put(Context.SECURITY_PRINCIPAL,"user");
+            env.put(Context.SECURITY_CREDENTIALS,"password");
             env.put("topic.Hot Deals", "Hot Deals");
             InitialContext jndi = new InitialContext(env);
             XATopicConnectionFactory tFactory = (XATopicConnectionFactory) jndi.lookup("XA" + broker);
