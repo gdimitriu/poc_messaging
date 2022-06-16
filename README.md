@@ -18,3 +18,13 @@ Proof of concept for Messaging in java
  * The server.activemq.generals is the activeMQ JMS provider implementation.
  * The server.solace.generals is the Solace JMS provider implementation.
  * The server.awsjms.generals is the AWS with SQS and SNS but with jms library for SQS.
+
+-- for package: from_jms_activemq (examples from Java Messaging Service book)
+ * Class name starting with Q use Queue
+ * Other class using topic
+ * ValidateJNDIArtemisTransactionManager is to test tx on Artemis (does not support it)
+
+-- for package mqtt there are examples from
+ * https://blogs.oracle.com/javamagazine/post/java-mqtt-iot-message-queuing
+ * https://github.com/ericjbruno/mqtt_sender
+ * https://github.com/ericjbruno/mqtt_listener
