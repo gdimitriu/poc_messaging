@@ -67,7 +67,7 @@
 	</build>
 	<properties>
 		<aws.version>1.11.590</aws.version>
-		<hazelcast.version>5.3.5</hazelcast.version>
+		<hazelcast.version>5.7.0</hazelcast.version>
 		<activemq.version>5.19.7</activemq.version>
 	</properties>
 	<dependencies>
