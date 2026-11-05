@@ -68,7 +68,7 @@
 	<properties>
 		<aws.version>1.11.590</aws.version>
 		<hazelcast.version>5.7.0</hazelcast.version>
-		<activemq.version>5.19.7</activemq.version>
+		<activemq.version>5.19.8</activemq.version>
 	</properties>
 	<dependencies>
 		<!-- https://mvnrepository.com/artifact/org.apache.activemq/activemq-all -->
